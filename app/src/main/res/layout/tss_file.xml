@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="11dp">
+
+        <ImageView
+            android:id="@+id/img_file_select"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:src="@drawable/ic_disselete_1" />
+
+        <TextView
+            android:id="@+id/tv_file_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="11dp"
+            android:layout_marginEnd="11dp"
+            android:layout_toStartOf="@id/img_file_select"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textColor="#535353"
+            android:textSize="11sp"
+            android:textStyle="bold"
+            tools:text="cache_image_12345.tmp" />
+
+    </RelativeLayout>
+</layout>

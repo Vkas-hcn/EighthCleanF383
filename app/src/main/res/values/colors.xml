@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="gradient_start">#ADD0FF</color>
+    <color name="gradient_c">#E3CEFF</color>
+    <color name="gradient_end">#FFFFFFFF</color>
+    <color name="progress_used">#6BB5E8</color>
+    <color name="progress_bg">#E8E4F3</color>
+    <color name="text_dark">#2C3E50</color>
+    <color name="text_gray">#D9C4F1</color>
+    <color name="card_bg">#F5F5F5</color>
+</resources>

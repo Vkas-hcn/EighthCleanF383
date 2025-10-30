@@ -1,0 +1,25 @@
+<resources>
+    <string name="app_name">EighthCleanF383</string>
+    <string name="master_clean">Master Clean</string>
+    <string name="storage_used">22</string>
+    <string name="storage_total">128GB</string>
+    <string name="gb_unit">GB</string>
+    <string name="free_storage">128</string>
+    <string name="used_storage">72.5</string>
+    <string name="free_label">Free</string>
+    <string name="used_label">Used</string>
+    <string name="picture_clean">Picture</string>
+    <string name="file_clean">File</string>
+    <string name="clean_label">Clean</string>
+    
+    <!-- Settings -->
+    <string name="settings">Settings</string>
+    <string name="privacy_settings">Privacy Settings</string>
+    <string name="contact_us">Contact Us</string>
+    <string name="share">Share</string>
+    
+    <!-- Permission Dialog -->
+    <string name="permission_message">Grant permission to find more junk files</string>
+    <string name="no">No</string>
+    <string name="yes">Yes</string>
+</resources>

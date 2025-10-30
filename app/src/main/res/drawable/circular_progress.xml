@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 背景圆环 -->
+    <item>
+        <shape
+            android:innerRadiusRatio="5"
+            android:shape="ring"
+            android:thicknessRatio="5"
+            android:useLevel="false">
+            <solid android:color="@color/progress_bg" />
+        </shape>
+    </item>
+    <!-- 进度圆环 -->
+    <item>
+        <shape
+            android:innerRadiusRatio="5"
+            android:shape="ring"
+            android:thicknessRatio="5"
+            android:useLevel="true">
+            <gradient android:angle="0"
+                android:endColor="#86B0F9"
+                android:centerColor="#A394F0"
+                android:startColor="#F4F7FE"
+                android:type="sweep" />
+        </shape>
+    </item>
+</layer-list>
+
