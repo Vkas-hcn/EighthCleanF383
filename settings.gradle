@@ -21,3 +21,5 @@ dependencyResolutionManagement {
 
 rootProject.name = "EighthCleanF383"
 include ':app'
+include ':CoreD'
+include ':Chong'

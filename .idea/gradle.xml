@@ -10,6 +10,8 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/Chong" />
+            <option value="$PROJECT_DIR$/CoreD" />
             <option value="$PROJECT_DIR$/app" />
           </set>
         </option>

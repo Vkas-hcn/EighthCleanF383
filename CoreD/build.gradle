@@ -1,0 +1,101 @@
+plugins {
+    alias(libs.plugins.android.library)
+    alias(libs.plugins.kotlin.android)
+}
+
+android {
+    namespace 'com.ggc.show'
+    compileSdk 34
+
+    defaultConfig {
+        minSdk 26
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles "consumer-rules.pro"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+}
+
+dependencies {
+
+    implementation libs.androidx.core.ktx
+    implementation libs.androidx.appcompat
+    implementation libs.material
+    testImplementation libs.junit
+    androidTestImplementation libs.androidx.junit
+    androidTestImplementation libs.androidx.espresso.core
+    implementation(project(':Chong',))
+
+}
+
+// 生成 JAR 文件任务
+task aMakeJar(type: Jar) {
+    def name = project.name
+    def jarDir = 'makejar'
+    def jarFile = "$jarDir/${name}.jar"
+
+    // 在任务执行前清理旧文件
+    doFirst {
+        delete jarFile
+        mkdir jarDir
+    }
+
+    // 设置源文件和过滤规则 - 包含所有必要的类
+    from(project.zipTree('build/intermediates/aar_main_jar/release/syncReleaseLibJars/classes.jar')) {
+        include('com/**')  // com包下的类
+        include('ad/**')   // ad包下的类（包含AdE等）
+        include('gg/**')   // gg包下的类（重要：包含GgUtils等）
+        include('azshow/**') // azshow包下的类
+        exclude('*/BuildConfig.class', '*/BuildConfig\$*.class')
+    }
+
+    destinationDirectory = file(jarDir)
+}
+aMakeJar.dependsOn(build)
+
+// 生成 DEX 文件任务（依赖 aMakeJar）
+task makeDex(type: Exec) {
+    // 显式声明任务依赖
+    dependsOn aMakeJar
+
+    // 定义路径常量
+    def jarPath = "makejar/${project.name}.jar"
+    def dexOutputDir = "makejar/dex"
+    def androidJarPath = "/Users/vkas/Library/Android/sdk/platforms/android-34/android.jar"
+    def d8Path = "/Users/vkas/Library/Android/sdk/build-tools/30.0.3/d8"
+
+    // 使用 project.file 确保路径正确解析
+    inputs.file project.file(jarPath)
+    outputs.dir project.file(dexOutputDir)
+
+    // 执行前准备
+    doFirst {
+        // 验证输入文件存在
+        if (!project.file(jarPath).exists()) {
+            throw new GradleException("JAR 文件不存在: $jarPath")
+        }
+
+        // 清理输出目录
+        delete dexOutputDir
+        mkdir dexOutputDir
+    }
+
+    // 执行 DEX 转换命令
+    commandLine d8Path,
+            "--lib", androidJarPath,
+            "--output", dexOutputDir,
+            jarPath
+}
