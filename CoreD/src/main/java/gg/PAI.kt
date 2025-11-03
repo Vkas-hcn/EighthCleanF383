@@ -2,7 +2,7 @@ package gg
 
 import android.app.Activity
 import android.util.Log
-import com.ggc.show.MasterRu
+import com.ecft.nice.MasterRu
 import com.appsflyer.AFAdRevenueData
 import com.appsflyer.AdRevenueScheme
 import com.appsflyer.AppsFlyerLib

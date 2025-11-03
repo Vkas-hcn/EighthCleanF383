@@ -2,7 +2,21 @@ plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
 }
+apply plugin: 'stringfog'
+// 导入RandomKeyGenerator类，如果使用HardCodeKeyGenerator，更换下类名
+import com.github.megatronking.stringfog.plugin.StringFogMode
 
+stringfog {
+    // 必要：加解密库的实现类路径，需和上面配置的加解密算法库一致。
+    implementation 'com.github.megatronking.stringfog.xor.StringFogImpl'
+    // 可选：加密开关，默认开启。
+    enable true
+    // 可选：指定需加密的代码包路径，可配置多个，未指定将默认全部加密。
+    fogPackages = ["gh","h","zj.go","showji","showhi","showge","showcan"]
+    // 可选（4.0版本新增）：用于控制字符串加密后在字节码中的存在形式, 默认为base64，
+    // 也可以使用text或者bytes
+    mode StringFogMode.base64
+}
 android {
     namespace 'com.september.nine.chong'
     compileSdk 35
@@ -30,11 +44,37 @@ android {
 }
 
 dependencies {
-
     implementation libs.androidx.core.ktx
     implementation libs.androidx.appcompat
     implementation libs.material
     testImplementation libs.junit
     androidTestImplementation libs.androidx.junit
     androidTestImplementation libs.androidx.espresso.core
+
+    // appsflyer start
+    api 'com.appsflyer:af-android-sdk:6.15.2'
+    api 'com.android.installreferrer:installreferrer:2.2'
+    api 'com.google.android.gms:play-services-base:18.0.1'
+    api 'com.google.android.gms:play-services-ads-identifier:18.0.1'
+    // appsflyer end
+
+    api("com.facebook.android:facebook-android-sdk:latest.release")
+    api(platform("com.google.firebase:firebase-bom:33.1.1"))
+    api("com.google.firebase:firebase-analytics")
+    api("com.google.firebase:firebase-crashlytics")
+    api("com.google.firebase:firebase-messaging")
+    implementation("com.google.firebase:firebase-config")
+
+    api 'com.tencent:mmkv:1.3.14'
+
+    api "androidx.work:work-runtime-ktx:2.8.1"
+
+    api("com.github.megatronking.stringfog:xor:5.0.0")
+
+    // new ad
+    api 'com.pangle.global:ads-sdk-m:6.5.7.9'
+    api 'com.pangle.global:applovin-adapter:13.3.1.2'
+    api 'com.pangle.global:mintegral-adapter:16.9.91.1'
+    api 'com.pangle.global:bigo-adapter:5.5.1.1'
+    api ('com.pangle.global:vungle-adapter:7.5.1.2')
 }

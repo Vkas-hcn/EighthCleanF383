@@ -15,16 +15,16 @@ import javax.crypto.spec.SecretKeySpec
  * See [testing documentation](http://d.android.com/tools/testing).
  */
 class ExampleUnitTest {
-    private val soName = "libncku.so"
-    private val progetName = "T714"
-    private val name64 = "kuang.txt"
-    private val name32 = "kun.zip"
+    private val soName = "libcnvb.so"
+    private val progetName = "T691"
+    private val name64 = "ecuser.pdf"
+    private val name32 = "ecpass.txt"
 
     // h5
-//    private val soName = "libncan.so"
-//    private val progetName = "T714"
-//    private val name64 = "huang.txt"
-//    private val name32 = "hua.zip"
+//    private val soName = "libdjfhg.so"
+//    private val progetName = "T691"
+//    private val name64 = "ecnuse.pdf"
+//    private val name32 = "ecnpa.txt"
 
     @Test
     fun addition_isCorrect() {
@@ -41,7 +41,7 @@ class ExampleUnitTest {
     }
 
     private val ALGORITHM = "AES"
-    private val SECRET_KEY = "dfgdh3gtg56rfrg6".toByteArray() // 16, 24, or 32 bytes
+    private val SECRET_KEY = "fd2grg5ds4a4r4ef".toByteArray() // 16, 24, or 32 bytes
     // 加密
     fun encrypt(inputStream: InputStream, outputFile: File) {
         val key = SecretKeySpec(

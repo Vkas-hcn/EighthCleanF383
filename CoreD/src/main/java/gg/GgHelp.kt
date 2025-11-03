@@ -4,8 +4,8 @@ import android.app.Activity
 import androidx.activity.addCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
-import azshow.sl.lo
-import com.ggc.show.MasterRu
+import ecf.jk.Kac
+import com.ecft.nice.MasterRu
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -36,7 +36,7 @@ class GgHelp {
                 MasterRu.pE("ad_done")
                 delay(Random.nextLong(GgUtils.gDTime()))
                 if (GgUtils.isLoadH) {
-                    lo.loc(ac)
+                    Kac.nneCp(ac)
                 }
                 var isS = mPAH.shAd(ac)
                 if (isS.not()) {

