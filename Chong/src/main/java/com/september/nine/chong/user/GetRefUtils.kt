@@ -10,6 +10,7 @@ import com.android.installreferrer.api.InstallReferrerClient
 import com.android.installreferrer.api.InstallReferrerStateListener
 import com.september.nine.chong.data.JksGo
 import com.september.nine.chong.data.KeyCon
+import com.september.nine.chong.ttuser.GetJkUtils.postInstallJson
 import java.util.UUID
 
 object GetRefUtils {
@@ -18,17 +19,12 @@ object GetRefUtils {
     private var timeoutRunnable: Runnable? = null
     private var isGettingReferrer = false
 
-    /**
-     * 获取 referrer
-     * - 60秒没有结果进行重试
-     * - 失败也进行重试
-     * - 如果已经获取到 referrer，不再重新获取
-     */
+
     fun fetchInstallReferrer(context: Context) {
         // 如果已经有 referrer，不再获取
         if (KeyCon.rdec.isNotEmpty()) {
             Log.e("TAG", "fetchInstallReferrer: 已有referrer，无需获取 - ${KeyCon.rdec}")
-            FanGetUser.getAUser()
+            FanGetUser.getAUser(context)
             return
         }
 
@@ -69,10 +65,8 @@ object GetRefUtils {
                                     KeyCon.rctsec = response.referrerClickTimestampSeconds.toString()
                                     KeyCon.rctssec = response.referrerClickTimestampServerSeconds.toString()
                                     KeyCon.rdec = referrer
-                                    FanGetUser.getAUser()
-                                    //TODO  add install
+                                    FanGetUser.getAUser(context)
                                     Log.e("TAG", "fetchInstallReferrer: 成功获取referrer - $referrer")
-                                    
                                     // 成功获取，取消超时并清理
                                     handler.removeCallbacks(timeoutRunnable!!)
                                     cleanup()

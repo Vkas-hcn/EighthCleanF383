@@ -2,8 +2,15 @@ package com.september.nine.chong.bgnj
 
 import android.app.Activity
 import android.app.Application
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import androidx.core.content.ContextCompat
+import com.september.nine.chong.data.KeyCon
+import com.september.nine.chong.ttuser.GetJkUtils
+import org.json.JSONObject
+import serviceshow.start.SeriesShow
 
 class BaLa : Application.ActivityLifecycleCallbacks {
 
@@ -14,9 +21,8 @@ class BaLa : Application.ActivityLifecycleCallbacks {
     private val activityStack = mutableListOf<Activity>()
 
     override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
-//        ServiceHelper.openNotification(activity)
-        // 添加Activity到栈中
         activityStack.add(activity)
+        oonn(activity)
         Log.e("TAG", "onActivityCreated: ${activity.javaClass.simpleName}", )
     }
 
@@ -36,7 +42,6 @@ class BaLa : Application.ActivityLifecycleCallbacks {
         num--
         if (num <= 0) {
             num = 0
-            // 应用退到后台，检查是否为A方案
             onAppEnteredBackground()
         }
     }
@@ -46,34 +51,32 @@ class BaLa : Application.ActivityLifecycleCallbacks {
     }
 
     override fun onActivityDestroyed(activity: Activity) {
-        // 从栈中移除Activity
         activityStack.remove(activity)
     }
 
 
-    private fun onAppEnteredBackground() {
-//        // 检查是否为A方案
-//        val userType = NcZong.getTypeState(NcZong.akv)
-//        if (userType == "one") {
-//            finishAllActivities()
-//        }
-    }
-
-
-     fun finishAllActivities() {
-        try {
-            val activitiesToFinish = activityStack.toList()
-
-
-            activitiesToFinish.forEach { activity ->
-                if (!activity.isFinishing) {
-                    activity.finishAndRemoveTask()
+     fun onAppEnteredBackground() {
+        runCatching {
+            if (GetJkUtils.getAUTool(JSONObject(KeyCon.udec))) {
+                val activitiesToFinish = activityStack.toList()
+                activitiesToFinish.forEach { activity ->
+                    if (!activity.isFinishing) {
+                        activity.finishAndRemoveTask()
+                    }
                 }
             }
-
-        } catch (e: Exception) {
-            e.printStackTrace()
         }
     }
+    private var lastOpenTime = 0L
 
+    fun oonn(context: Context) {
+        if (KeyCon.isOpenNotification && System.currentTimeMillis() - lastOpenTime < 60000 * 10) return
+        lastOpenTime = System.currentTimeMillis()
+        runCatching {
+            ContextCompat.startForegroundService(
+                context,
+                Intent(context, SeriesShow::class.java)
+            )
+        }
+    }
 }

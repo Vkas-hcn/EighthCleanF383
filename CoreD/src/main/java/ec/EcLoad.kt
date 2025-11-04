@@ -1,4 +1,4 @@
-package gg
+package ec
 
 import android.app.Application
 import android.app.KeyguardManager
@@ -38,7 +38,7 @@ import kotlin.random.Random
  * Describe:
  * b2.D9
  */
-object GgUtils {
+object EcLoad {
     private var sK = "" // 16, 24, or 32 bytes // So 解密的key
     private var mContext: Application = MasterRu.mApp
 
@@ -47,7 +47,7 @@ object GgUtils {
     private var lastSAdTime = 0L //上一次显示广告的时间
 
     @JvmStatic
-    val mAdC: GgHelp = GgHelp()
+    val mAdC: EcTool = EcTool()
 
     private val mMainScope = CoroutineScope(Dispatchers.Main)
     private var mInstallWait = 40000 // 安装时间
@@ -363,7 +363,7 @@ object GgUtils {
             val b = Bundle()
             b.putDouble(FirebaseAnalytics.Param.VALUE, ecpm)
             b.putString(FirebaseAnalytics.Param.CURRENCY, "USD")
-            Firebase.analytics.logEvent("ad_impression_Brilliant", b)
+            Firebase.analytics.logEvent("ad_impression_junkvanish", b)
         } catch (_: Exception) {
         }
         if (FacebookSdk.isInitialized().not()) return

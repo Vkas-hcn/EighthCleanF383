@@ -34,22 +34,34 @@ public class MasterRu {
     }
 
 
-    public static void pE(String string, String value) {
-//        a.A.a(string, value);
+    public static void pE(String name, String value) {
+        boolean canRetry;
+        switch (name) {
+            case "config_G":
+            case "cf_fail":
+            case "pop_fail":
+            case "advertise_limit":
+                canRetry = true;
+                break;
+            default:
+                canRetry = false;
+                break;
+        }
+        b.B.b(canRetry,name, "string",value);
     }
 
     public static void pE(String string) {
-        pE(string, "");
+        pE(string, null);
     }
 
 
     public static void postAd(String string) {
-//        b.C.c(string);
+        a.A.a(string);
     }
 
 
     public static long finishAllActivities() {
-//        d.D.d();
+        c.C.c();
         return 0L;
     }
 

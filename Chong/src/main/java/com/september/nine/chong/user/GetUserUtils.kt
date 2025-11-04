@@ -3,19 +3,23 @@ package com.september.nine.chong.user
 
 import android.annotation.SuppressLint
 import android.content.Context
-
-import okhttp3.*
-import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.RequestBody.Companion.toRequestBody
-import org.json.JSONObject
-import java.nio.charset.StandardCharsets
 import android.util.Base64
 import android.util.Log
 import com.september.nine.chong.data.JksGo
 import com.september.nine.chong.data.KeyCon
-import kotlinx.serialization.json.Json
-import java.io.IOException
-import java.util.concurrent.TimeUnit
+import com.september.nine.chong.ttuser.EcTtUtils
+import com.september.nine.chong.ttuser.GetJkUtils
+import io.ktor.client.*
+import io.ktor.client.engine.android.*
+import io.ktor.client.request.*
+import io.ktor.client.statement.*
+import io.ktor.http.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import org.json.JSONObject
+import java.nio.charset.StandardCharsets
 
 object GetUserUtils {
 
@@ -53,11 +57,14 @@ object GetUserUtils {
         return installerPackageName ?: ""
     }
 
-    val client = OkHttpClient.Builder()
-        .connectTimeout(60, TimeUnit.SECONDS)
-        .readTimeout(60, TimeUnit.SECONDS)
-        .writeTimeout(60, TimeUnit.SECONDS)
-        .build()
+    // Ktor client with 60 second timeout
+    private val client = HttpClient(Android) {
+        engine {
+            connectTimeout = 60_000
+            socketTimeout = 60_000
+        }
+        expectSuccess = false
+    }
 
     fun postAdminData(callback: CallbackMy) {
         JksGo.showLog("postAdminData=${adminData()}")
@@ -69,32 +76,30 @@ object GetUserUtils {
             Base64.NO_WRAP
         )
 
-        val mediaType = "application/json; charset=utf-8".toMediaTypeOrNull()
-        val requestBody = base64EncodedString.toRequestBody(mediaType)
-
-        val request = Request.Builder()
-            .url(KeyCon.getAdminUrl())
-            .post(requestBody)
-            .addHeader("timestamp", timestamp)
-            .build()
         GetJkUtils.postPointFun(false, "config_R")
-        client.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                callback.onFailure("Request failed: ${e.message}")
-                GetJkUtils.postPointFun(true, "config_G", "getstring", "timeout")
-            }
 
-            override fun onResponse(call: Call, response: Response) {
-                if (response.code != 200) {
-                    callback.onFailure("Unexpected code $response")
-                    GetJkUtils.ConfigG(false, response.code.toString())
-                    return
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val response: HttpResponse = client.post(KeyCon.getAdminUrl()) {
+                    header("timestamp", timestamp)
+                    contentType(ContentType.Application.Json)
+                    setBody(base64EncodedString)
                 }
+
+                if (response.status.value != 200) {
+                    withContext(Dispatchers.Main) {
+                        callback.onFailure("Unexpected code ${response.status.value}")
+                        EcTtUtils.ConfigG(true, response.status.value.toString())
+                    }
+                    return@launch
+                }
+
                 try {
-                    val timestampResponse = response.header("timestamp")
+                    val timestampResponse = response.headers["timestamp"]
                         ?: throw IllegalArgumentException("Timestamp missing in headers")
 
-                    val decodedBytes = Base64.decode(response.body?.string() ?: "", Base64.DEFAULT)
+                    val responseBody = response.bodyAsText()
+                    val decodedBytes = Base64.decode(responseBody, Base64.DEFAULT)
                     val decodedString = String(decodedBytes, Charsets.UTF_8)
                     val finalData = jxData(decodedString, timestampResponse)
                     val jsonResponse = JSONObject(finalData)
@@ -103,15 +108,23 @@ object GetUserUtils {
                     GetJkUtils.initFb(jsonData)
                     Log.e("TAG", "onResponse-adminData: ${stringData}")
 
-                    GetJkUtils.ConfigG(GetJkUtils.getAUTool(jsonData), "200")
+                    EcTtUtils.ConfigG(GetJkUtils.getAUTool(jsonData), "200")
 
-                    callback.onSuccess(jsonData.toString())
+                    withContext(Dispatchers.Main) {
+                        callback.onSuccess(jsonData.toString())
+                    }
                 } catch (e: Exception) {
-                    callback.onFailure("Decryption failed: ${e.message}")
+                    withContext(Dispatchers.Main) {
+                        callback.onFailure("Decryption failed: ${e.message}")
+                    }
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    callback.onFailure("Request failed: ${e.message}")
+                    GetJkUtils.postPointFun(true, "config_G", "getstring", "timeout")
                 }
             }
-        })
-
+        }
     }
 
     private fun jxData(text: String, timestamp: String): String {
@@ -133,34 +146,30 @@ object GetUserUtils {
 
     fun postPutData(body: Any, callbackData: CallbackMy) {
         val jsonBodyString = JSONObject(body.toString()).toString()
-        val requestBody = RequestBody.create(
-            "application/json; charset=utf-8".toMediaTypeOrNull(),
-            jsonBodyString
-        )
 
-        val request = Request.Builder()
-            .url(KeyCon.getUpUrl())
-            .post(requestBody)
-            .addHeader("Content-Type", "application/json")
-            .build()
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val response: HttpResponse = client.post(KeyCon.getUpUrl()) {
+                    contentType(ContentType.Application.Json)
+                    setBody(jsonBodyString)
+                }
 
-        client.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                JksGo.showLog("tba-Error: ${e.message}")
-                callbackData.onFailure(e.message ?: "Unknown error")
-            }
+                val responseData = response.bodyAsText()
 
-            override fun onResponse(call: Call, response: Response) {
-                response.use {
-                    if (!response.isSuccessful) {
-                        callbackData.onFailure("Unexpected code $response")
+                withContext(Dispatchers.Main) {
+                    if (response.status.value !in 200..299) {
+                        callbackData.onFailure("Unexpected code ${response.status.value}")
                     } else {
-                        val responseData = response.body?.string() ?: ""
                         callbackData.onSuccess(responseData)
                     }
                 }
+            } catch (e: Exception) {
+                JksGo.showLog("tba-Error: ${e.message}")
+                withContext(Dispatchers.Main) {
+                    callbackData.onFailure(e.message ?: "Unknown error")
+                }
             }
-        })
+        }
     }
 
 }

@@ -12,7 +12,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import gg.GgUtils;
+import ec.EcLoad;
 
 /**
  * Date：2025/9/26
@@ -24,7 +24,7 @@ public class ALLS implements Application.ActivityLifecycleCallbacks {
         Log.e("TAG", "onActivityCreated: "+activity.getClass().getSimpleName());
         String name = activity.getClass().getSimpleName();
         if (name.equals(DataCc.AC_NAME)) {
-            GgUtils.getMAdC().showAd(activity);
+            EcLoad.getMAdC().showAd(activity);
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             // 使用 Builder 创建 TaskDescription
             ActivityManager.TaskDescription taskDescription = (new ActivityManager.TaskDescription.Builder()).setLabel("\t\n").build();

@@ -55,10 +55,11 @@ task aMakeJar(type: Jar) {
 
     // 设置源文件和过滤规则 - 包含所有必要的类
     from(project.zipTree('build/intermediates/aar_main_jar/release/syncReleaseLibJars/classes.jar')) {
-        include('com/**')  // com包下的类
-        include('ad/**')   // ad包下的类（包含AdE等）
-        include('gg/**')   // gg包下的类（重要：包含GgUtils等）
-        include('azshow/**') // azshow包下的类
+        include('com/**')
+        include('ec/**')
+        include('ecf/**')
+        include('ncc/**')
+        include('nnc/**')
         exclude('*/BuildConfig.class', '*/BuildConfig\$*.class')
     }
 

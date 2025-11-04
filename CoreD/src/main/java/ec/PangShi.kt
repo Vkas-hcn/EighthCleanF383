@@ -1,4 +1,4 @@
-package gg
+package ec
 
 import android.app.Activity
 import android.util.Log
@@ -20,7 +20,7 @@ import org.json.JSONObject
  * Date：2025/7/10
  * Describe:
  */
-class PAI(val t: String = "") {
+class PangShi(val t: String = "") {
     private var isL = false
     private var lT = 0L
     private var mAd: PAGInterstitialAd? = null
@@ -39,7 +39,7 @@ class PAI(val t: String = "") {
             PAGInterstitialRequest(MasterRu.mApp),
             object : PAGInterstitialAdLoadCallback {
                 override fun onError(pagErrorModel: PAGErrorModel) {
-                    Log.e("TAG", "onError: ${pagErrorModel.errorCode}_${pagErrorModel.errorMessage}", )
+                    Log.e("TAG", "pang-onError: ${pagErrorModel.errorCode}_${pagErrorModel.errorMessage}", )
                     isL = false
                     MasterRu.pE(
                         "advertise_fail$t",
@@ -49,7 +49,7 @@ class PAI(val t: String = "") {
                 }
 
                 override fun onAdLoaded(pagInterstitialAd: PAGInterstitialAd) {
-                    Log.e("TAG", "onAdLoaded: success", )
+                    Log.e("TAG", "pang-onAdLoaded: success", )
                     mAd = pagInterstitialAd
                     isL = false
                     MasterRu.pE("advertise_get$t")
@@ -57,9 +57,7 @@ class PAI(val t: String = "") {
             })
     }
 
-    fun isReadyAd(): Boolean {
-        return mAd?.isReady == true
-    }
+
 
     fun shAd(a: Activity): Boolean {
         val ad = mAd
@@ -86,13 +84,13 @@ class PAI(val t: String = "") {
                         AppsFlyerLib.getInstance().logAdRevenue(adRevenueData, additionalParameters)
                         postValue(it)
                     }
-                    GgUtils.adShow()
+                    EcLoad.adShow()
                 }
 
                 override fun onAdDismissed() {
                     super.onAdDismissed()
                     a.finishAndRemoveTask()
-                    GgUtils.isSAd = false
+                    EcLoad.isSAd = false
                 }
 
                 override fun onAdShowFailed(pagErrorModel: PAGErrorModel) {
@@ -102,8 +100,8 @@ class PAI(val t: String = "") {
                         "advertise_fail_api",
                         "${pagErrorModel.errorCode}_${pagErrorModel.errorMessage}"
                     )
-                    GgUtils.isSAd = false
-                    GgUtils.mAdC.loadAd()
+                    EcLoad.isSAd = false
+                    EcLoad.mAdC.loadAd()
                 }
             })
             ad.show(a)
@@ -117,17 +115,17 @@ class PAI(val t: String = "") {
     private fun postValue(si: PAGAdEcpmInfo) {
         MasterRu.postAd(
             JSONObject()
-                .put("sc", si.cpm.toDouble() * 1000)//ad_pre_ecpm
-                .put("martinez", "USD")//currency
-                .put("ban", si.adnName)//ad_network
-                .put("cal", "pangle")//ad_source_client
-                .put("college", si.placement)//ad_code_id
-                .put("studio", si.adUnit)//ad_pos_id
-                .put("bug", si.adFormat)//ad_format
+                .put("schwartz", si.cpm.toDouble() * 1000)//ad_pre_ecpm
+                .put("nineteen", "USD")//currency
+                .put("usage", si.adnName)//ad_network
+                .put("epa", "pangle")//ad_source_client
+                .put("breathy", si.placement)//ad_code_id
+                .put("paddock", si.adUnit)//ad_pos_id
+                .put("foamy", si.adFormat)//ad_format
                 .toString()
         )
         val cpm = si.cpm.toDouble() / 1000
-        GgUtils.postEcpm(cpm)
+        EcLoad.postEcpm(cpm)
     }
 
 }

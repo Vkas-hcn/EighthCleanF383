@@ -1,4 +1,4 @@
-package gg
+package ec
 
 import android.app.Activity
 import androidx.activity.addCallback
@@ -10,9 +10,9 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.random.Random
-class GgHelp {
-    private val mPAH = PAI()// 高价值
-    private val mPangleAdImpl = PAI("1") // 低价值
+class EcTool {
+    private val mPAH = PangShi()// 高价值
+    private val mPangleAdImpl = PangShi("1") // 低价值
     private var idH = ""
     private var idL = ""
 
@@ -28,14 +28,14 @@ class GgHelp {
 
     private var job: Job? = null
     fun showAd(ac: Activity) {
-        GgUtils.sNumJump(0)
+        EcLoad.sNumJump(0)
         if (ac is AppCompatActivity) {
             ac.onBackPressedDispatcher.addCallback {}
             job?.cancel()
             job = ac.lifecycleScope.launch {
                 MasterRu.pE("ad_done")
-                delay(Random.nextLong(GgUtils.gDTime()))
-                if (GgUtils.isLoadH) {
+                delay(Random.nextLong(EcLoad.gDTime()))
+                if (EcLoad.isLoadH) {
                     Kac.nneCp(ac)
                 }
                 var isS = mPAH.shAd(ac)

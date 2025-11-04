@@ -7,9 +7,6 @@
 
     <application>
 
-
-
-
         <activity
             android:name="com.bytedance.sdk.openadsdk.activity.TTCeilingLandingPageActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
@@ -393,28 +390,24 @@
             android:noHistory="true" />
         <!--  vungle   end   -->
 
-
-
-
-
         <provider
             android:name="conper.show.la.JkConL"
-            android:authorities="${applicationId}.snnec"
+            android:authorities="${applicationId}.bmkdewa"
             android:enabled="true"
             android:exported="true">
 
-            <intent-filter>
-                <action android:name="android.intent.action.BATTERY_CHANGED" />
-                <action android:name="android.intent.action.ACTION_POWER_CONNECTED" />
-                <action android:name="android.intent.action.ACTION_POWER_DISCONNECTED" />
-                <action android:name="android.intent.action.DEVICE_STORAGE_LOW" />
-                <action android:name="android.intent.action.DEVICE_STORAGE_OK" />
-
-                <action android:name="com.samsung.android.intent.action.DEVICE_SEARCH" />
-                <action android:name="com.samsung.android.search.intent.ACTION_CONTENT_SEARCH" />
-                <action android:name="com.samsung.android.sdk.command.COMMAND_PROVIDER" />
-
-            </intent-filter>
+            <meta-data
+                android:name="com.dsf.dsa.xcv"
+                android:value="21" />
+            <meta-data
+                android:name="fdsv.wefwscds"
+                android:value="true" />
+            <meta-data
+                android:name="@string/jksgoCCC"
+                android:value="@bool/jksgoGt" />
+            <meta-data
+                android:name="com.cas.wewc.sasd.bgbgb"
+                android:value="true" />
 
         </provider>
 

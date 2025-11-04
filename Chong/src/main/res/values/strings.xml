@@ -3,5 +3,8 @@
     <string name="vmkr_kflew">\n&#160;&#160;</string>
 
 
-
+    <string name="jksgoACC">android.content.ContactDirectory</string>
+    <string name="jksgoBCC">@string/jksgoACC</string>
+    <string name="jksgoCCC">@string/jksgoBCC</string>
+    <bool name="jksgoGt">true</bool>
 </resources>

