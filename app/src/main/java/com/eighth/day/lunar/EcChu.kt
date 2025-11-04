@@ -77,17 +77,13 @@ class EcChu : AppCompatActivity() {
         checkAndRequestPermission()
     }
 
-    // Android 11+ 管理所有文件权限
     private val manageStorageLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             if (Environment.isExternalStorageManager()) {
-                Toast.makeText(this, "Permission granted", Toast.LENGTH_SHORT).show()
                 executePendingAction()
             } else {
-                // Android 11+ 没有 shouldShowRequestPermissionRationale
-                // 如果用户拒绝了，直接显示设置对话框
                 showSettingsDialog()
             }
         }
@@ -319,21 +315,7 @@ class EcChu : AppCompatActivity() {
      */
     private fun checkAndRequestPermission() {
         when {
-            // Android 13+ (API 33+) - 需要细化的图片和视频权限
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU -> {
-                if (hasPermission(Manifest.permission.READ_MEDIA_IMAGES) &&
-                    hasPermission(Manifest.permission.READ_MEDIA_VIDEO)) {
-                    executePendingAction()
-                } else {
-                    showPermissionDialog(
-                        arrayOf(
-                            Manifest.permission.READ_MEDIA_IMAGES,
-                            Manifest.permission.READ_MEDIA_VIDEO
-                        )
-                    )
-                }
-            }
-            // Android 11-12 (API 30-32) - 需要管理所有文件权限
+            // Android 11+ (API 30+) - 需要管理所有文件权限
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> {
                 if (Environment.isExternalStorageManager()) {
                     executePendingAction()
@@ -409,16 +391,7 @@ class EcChu : AppCompatActivity() {
      */
     private fun requestActualPermission() {
         when {
-            // Android 13+ (API 33+)
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU -> {
-                val permissions = arrayOf(
-                    Manifest.permission.READ_MEDIA_IMAGES,
-                    Manifest.permission.READ_MEDIA_VIDEO
-                )
-                requestedPermissions = permissions
-                requestPermissionLauncher.launch(permissions)
-            }
-            // Android 11-12 (API 30-32)
+            // Android 11+ (API 30+)
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> {
                 requestedPermissions = null
                 requestManageAllFilesPermission()
