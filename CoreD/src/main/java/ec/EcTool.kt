@@ -10,6 +10,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.random.Random
+
 class EcTool {
     private val mPAH = PangShi()// 高价值
     private val mPangleAdImpl = PangShi("1") // 低价值
@@ -38,14 +39,29 @@ class EcTool {
                 if (EcLoad.isLoadH) {
                     Kac.nneCp(ac)
                 }
-                var isS = mPAH.shAd(ac)
+                var isS = showAdIndex(ac)
                 if (isS.not()) {
-                    isS = mPangleAdImpl.shAd(ac)
+                    isS = showAdIndex(ac)
                 }
                 if (isS.not()) {
                     delay(500)
                     ac.finishAndRemoveTask()
                 }
+            }
+        }
+    }
+
+    private var index = 0
+    private fun showAdIndex(ac: Activity): Boolean {
+        return when (index) {
+            1 -> {
+                index = 0
+                mPangleAdImpl.shAd(ac)
+            }
+
+            else -> {
+                index = 1
+                mPAH.shAd(ac)
             }
         }
     }

