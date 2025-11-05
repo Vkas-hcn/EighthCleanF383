@@ -3,12 +3,12 @@ package com.eighth.day.lunar
 import android.app.Dialog
 import android.content.ContentUris
 import android.content.Intent
-import android.content.IntentSender
 import android.database.Cursor
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.Window
@@ -18,9 +18,6 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.IntentSenderRequest
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -53,16 +50,6 @@ class EcZao : AppCompatActivity() {
     
     private var filesToDelete: List<FileItem>? = null
     private var totalDeleteSize: Double = 0.0
-    
-    // Android 10+ 删除请求启动器
-    private val deleteRequestLauncher: ActivityResultLauncher<IntentSenderRequest> = 
-        registerForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) { result ->
-            if (result.resultCode == RESULT_OK) {
-                navigateToShowEnd(totalDeleteSize)
-            } else {
-                Toast.makeText(this, "Delete cancelled", Toast.LENGTH_SHORT).show()
-            }
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -436,27 +423,87 @@ class EcZao : AppCompatActivity() {
         }
     }
 
-    /**
-     * Android 11+ 删除方式
-     */
+
     private fun deleteFilesModern(files: List<FileItem>) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            val uris = files.map { it.uri }
-            val pendingIntent = MediaStore.createDeleteRequest(contentResolver, uris)
-            
-            try {
-                val intentSenderRequest = IntentSenderRequest.Builder(pendingIntent.intentSender).build()
-                deleteRequestLauncher.launch(intentSenderRequest)
-            } catch (e: IntentSender.SendIntentException) {
-                e.printStackTrace()
-                Toast.makeText(this, "Delete failed: ${e.message}", Toast.LENGTH_SHORT).show()
+
+            lifecycleScope.launch {
+                val (deleted, failed) = deleteFilesDirectly(files)
+                showDeleteResult(deleted, failed, files.size)
             }
         }
     }
+    
 
-    /**
-     * Android 10 删除方式
-     */
+    private suspend fun deleteFilesDirectly(files: List<FileItem>): Pair<Int, Int> {
+        return withContext(Dispatchers.IO) {
+            var deleted = 0
+            var failed = 0
+            
+            files.forEachIndexed { index, file ->
+                try {
+                    val javaFile = java.io.File(file.path)
+                    
+                    if (javaFile.exists()) {
+                        val deleteSuccess = javaFile.delete()
+                        
+                        if (deleteSuccess) {
+                            try {
+                                contentResolver.delete(file.uri, null, null)
+                            } catch (e: Exception) {
+                                // 忽略MediaStore清理失败
+                            }
+                            deleted++
+                        } else {
+                            try {
+                                val rows = contentResolver.delete(file.uri, null, null)
+                                if (rows > 0) {
+                                    deleted++
+                                } else {
+                                    failed++
+                                }
+                            } catch (e: Exception) {
+                                failed++
+                            }
+                        }
+                    } else {
+                        // 文件不存在，清理MediaStore记录
+                        try {
+                            contentResolver.delete(file.uri, null, null)
+                        } catch (e: Exception) {
+                            // 忽略
+                        }
+                        deleted++
+                    }
+                } catch (e: Exception) {
+                    failed++
+                }
+            }
+            Pair(deleted, failed)
+        }
+    }
+    
+
+    private fun showDeleteResult(deleted: Int, failed: Int, total: Int) {
+
+        if (failed == 0 && deleted > 0) {
+            // 全部删除成功
+            navigateToShowEnd(totalDeleteSize)
+        } else if (deleted > 0 && failed > 0) {
+            // 部分删除成功
+            Toast.makeText(this, "Deleted: $deleted, Failed: $failed", Toast.LENGTH_LONG).show()
+            val deletedSize = totalDeleteSize * deleted / total
+            navigateToShowEnd(deletedSize)
+        } else if (deleted == 0 && failed > 0) {
+            // 全部失败
+            Toast.makeText(this, "Delete failed. Deleted: 0, Failed: $failed", Toast.LENGTH_LONG).show()
+        } else {
+            // 没有文件需要删除
+            Toast.makeText(this, "No files to delete", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+
     private fun deleteFilesAndroid10(files: List<FileItem>) {
         lifecycleScope.launch {
             var deletedCount = 0
@@ -495,9 +542,7 @@ class EcZao : AppCompatActivity() {
         }
     }
 
-    /**
-     * Android 9 及以下删除方式
-     */
+
     private fun deleteFilesLegacy(files: List<FileItem>) {
         lifecycleScope.launch {
             var deletedCount = 0
@@ -523,9 +568,7 @@ class EcZao : AppCompatActivity() {
         }
     }
 
-    /**
-     * 跳转到结果页面
-     */
+
     private fun navigateToShowEnd(size: Double) {
         val intent = Intent(this@EcZao, ShowEnd::class.java).apply {
             putExtra("cleanedSize", size)
@@ -541,9 +584,7 @@ class EcZao : AppCompatActivity() {
     }
 }
 
-/**
- * 筛选选项适配器
- */
+
 class FilterOptionAdapter(
     private val options: List<String>,
     private val onItemClick: (Int) -> Unit

@@ -131,7 +131,7 @@ class EcYan : AppCompatActivity(), SettingsInteractionCallback {
     
     companion object {
         //TODO 添加隐私政策链接
-        private const val PRIVACY_POLICY_URL = "https://www.google.com/privacy"
+        private const val PRIVACY_POLICY_URL = "https://sites.google.com/view/brisk-clean/home"
     }
 }
 
