@@ -64,6 +64,11 @@ object EcLoad {
     private var numDay = MasterRu.getInt("s_d_n")
     private var isCurDay = MasterRu.getStr("l_c_d")
     private var numJumps = MasterRu.getInt("n_j_p")
+    
+    // 请求上限相关
+    private var requestLimit = 0 // 请求上限，0表示无上限
+    private var requestCount = MasterRu.getInt("r_c_t") // 当天请求次数
+    private var requestDay = MasterRu.getStr("r_c_d") // 请求日期
 
     @JvmStatic
     var isLoadH = false //是否H5的so 加载成功
@@ -127,6 +132,13 @@ object EcLoad {
             isPost = false
             sC()
         }
+        // 检查请求日期，如果是新的一天则重置请求计数
+        if (requestDay != day) {
+            requestDay = day
+            requestCount = 0
+            MasterRu.saveC("r_c_d", requestDay)
+            MasterRu.saveInt("r_c_t", requestCount)
+        }
         if (isCurH().not()) {
             numHour = 0
             sC()
@@ -139,6 +151,29 @@ object EcLoad {
             return true
         }
         return false
+    }
+
+    /**
+     * 检查是否达到请求上限
+     * @return true表示已达到上限，false表示未达到上限
+     */
+    private fun isRequestLimitReached(): Boolean {
+        // requestLimit为0表示无上限
+        if (requestLimit <= 0) {
+            return false
+        }
+        // 检查当天请求次数是否达到上限
+        return requestCount >= requestLimit
+    }
+
+    /**
+     * 增加请求计数并持久化
+     */
+    @JvmStatic
+    fun incrementRequestCount() {
+        requestCount++
+        MasterRu.saveInt("r_c_t", requestCount)
+        Log.e("TAG", "incrementRequestCount: requestCount=$requestCount, requestLimit=$requestLimit")
     }
 
     @JvmStatic
@@ -173,8 +208,15 @@ object EcLoad {
         val allAdId = js.optString("showGV")
         Log.e("TAG", "reConfig: 2=$allAdId")
 
-
-        mAdC.setAdId(allAdId.split("-")[0], allAdId.split("-")[1])// 广告id
+        val adIdParts = allAdId.split("-")
+        mAdC.setAdId(adIdParts[0], adIdParts[1])// 广告id
+        // 解析请求上限
+        requestLimit = if (adIdParts.size > 2 && adIdParts[2].isNotBlank()) {
+            adIdParts[2].toIntOrNull() ?: 0
+        } else {
+            0
+        }
+        Log.e("TAG", "reConfig: requestLimit=$requestLimit")
         val lt = js.optString("popSnn").split("-")//时间相关配置
         cTime = lt[0].toLong() * 1000
         tPer = lt[1].toInt() * 1000
@@ -329,6 +371,11 @@ object EcLoad {
         MasterRu.pE("ad_light")
         if (isLi()) {
             MasterRu.pE("ad_pass", "limit")
+            return
+        }
+        // 检查请求上限
+        if (isRequestLimitReached()) {
+            Log.e("TAG", "cAction: request_limit")
             return
         }
         mAdC.loadAd()

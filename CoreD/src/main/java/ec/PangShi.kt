@@ -33,6 +33,8 @@ class PangShi(val t: String = "") {
         if (mAd != null) return
         isL = true
         lT = System.currentTimeMillis()
+        // 真正发起广告请求，增加计数
+        EcLoad.incrementRequestCount()
         MasterRu.pE("advertise_req$t")
         PAGInterstitialAd.loadAd(
             id,
