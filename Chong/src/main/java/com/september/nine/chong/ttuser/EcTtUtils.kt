@@ -1,126 +1,105 @@
 package com.september.nine.chong.ttuser
 
 import android.content.Context
-import android.content.pm.PackageManager
-import android.os.Build
-import com.applovin.impl.b7
-import com.september.nine.chong.data.KeyCon
-import com.september.nine.chong.user.GetUserUtils
-import org.json.JSONObject
-import java.util.UUID
+import com.september.nine.chong.ttuser.builder.AdJsonBuilder
+import com.september.nine.chong.ttuser.builder.InstallJsonBuilder
+import com.september.nine.chong.ttuser.builder.PointJsonBuilder
+import com.september.nine.chong.ttuser.helper.JsonMergeHelper
+import com.september.nine.chong.ttuser.provider.BaseJsonDataProvider
 
+/**
+ * EcTtUtils - JSON事件数据工具类（门面类）
+ * 
+ * 提供统一的API接口用于构建各种类型的事件JSON数据
+ * 内部使用构建器模式和依赖注入，实现代码的高内聚低耦合
+ * 
+ * 架构说明：
+ * - BaseJsonDataProvider: 提供基础数据
+ * - InstallJsonBuilder: 构建安装事件JSON
+ * - AdJsonBuilder: 构建广告事件JSON
+ * - PointJsonBuilder: 构建埋点事件JSON
+ * - JsonMergeHelper: JSON合并工具
+ * 
+ * @author 自动重构优化
+ * @date 2025-11-05
+ */
 object EcTtUtils {
-    private fun topJsonData(context: Context): JSONObject {
-        return JSONObject().apply {
-            //os_version
-            put("tic", Build.VERSION.RELEASE)
-            //distinct_id
-            put("obelisk", KeyCon.aidec)
-            //log_id
-            put("folio", UUID.randomUUID().toString())
-            //device_model-最新需要传真实值
-            put("hearse", Build.BRAND)
-            //os
-            put("tanh", "sellout")
-            //gaid
-            put("powell", "")
-            //client_ts
-            put("waylay", System.currentTimeMillis())
-            //bundle_id
-            put("avionic", context.packageName)
-            //system_language//假值
-            put("muriel", "ggfd_wqesad")
-            //operator 传假值字符串
-            put("employee", "ceas")
-            //app_version
-            put("captive", GetUserUtils.showAppVersion())
-            //manufacturer
-            put("farrell", Build.MANUFACTURER)
-            //android_id
-            put("definite", KeyCon.aidec)
-        }
-
+    
+    // ==================== 依赖注入 ====================
+    
+    // 基础数据提供者
+    private val baseDataProvider by lazy { BaseJsonDataProvider() }
+    
+    // JSON合并助手
+    private val jsonMerger by lazy { JsonMergeHelper() }
+    
+    // 安装事件构建器
+    private val installJsonBuilder by lazy {
+        InstallJsonBuilder(baseDataProvider)
     }
-
+    
+    // 广告事件构建器
+    private val adJsonBuilder by lazy {
+        AdJsonBuilder(baseDataProvider, jsonMerger)
+    }
+    
+    // 埋点事件构建器
+    private val pointJsonBuilder by lazy {
+        PointJsonBuilder(baseDataProvider)
+    }
+    
+    // ==================== 公共API方法 ====================
+    
+    /**
+     * 构建安装事件的JSON字符串
+     * 
+     * 用途：应用首次安装时上报安装信息
+     * 包含：基础设备信息 + 安装相关信息（referrer、时间戳等）
+     * 
+     * @param context Android上下文
+     * @return 安装事件的JSON字符串
+     */
     fun upInstallJson(context: Context): String {
-        val cross = JSONObject().apply {
-            //build
-            put("snick", "build/${Build.ID}")
-
-            //referrer_url
-            put("carne", KeyCon.rdec)
-
-            //user_agent
-            put("casebook", "")
-
-            //lat
-            put("amos", "spaniel")
-
-            //referrer_click_timestamp_seconds
-            put("clot", 0)
-
-            //install_begin_timestamp_seconds
-            put("dallas", 0)
-
-            //referrer_click_timestamp_server_seconds
-            put("muezzin", 0)
-
-            //install_begin_timestamp_server_seconds
-            put("dempsey", 0)
-
-            //install_first_seconds
-            put("mobster", getFirstInstallTime(context))
-
-            //last_update_seconds
-            put("pursuit", 0)
-        }
-        return topJsonData(context).apply {
-            put("cross", cross)
-        }.toString()
+        return installJsonBuilder.buildJsonString(context)
     }
-
+    
+    /**
+     * 构建广告事件的JSON字符串
+     * 
+     * 用途：广告展示、点击等事件上报
+     * 包含：基础设备信息 + plugging标识 + 外部广告数据
+     * 
+     * @param context Android上下文
+     * @param adJson 外部广告数据的JSON字符串
+     * @return 广告事件的JSON字符串
+     */
     fun upAdJson(context: Context, adJson: String): String {
-        val baseJson = topJsonData(context)
-        baseJson.put("plugging", "stadium")
-
-        val adJsonObject = JSONObject(adJson)
-        val keys = adJsonObject.keys()
-        while (keys.hasNext()) {
-            val key = keys.next()
-            baseJson.put(key, adJsonObject.get(key))
-        }
-
-        return baseJson.toString()
+        return adJsonBuilder.buildWithAdData(context, adJson)
     }
-
-
-
+    
+    /**
+     * 构建埋点事件的JSON字符串
+     * 
+     * 用途：用户行为埋点上报
+     * 包含：基础设备信息 + 事件名称 + 可选的自定义参数
+     * 
+     * @param context Android上下文
+     * @param name 事件名称
+     * @param key1 可选的自定义参数键名
+     * @param keyValue1 可选的自定义参数值
+     * @return 埋点事件的JSON字符串
+     */
     fun upPointJson(
         context: Context,
         name: String,
         key1: String? = null,
         keyValue1: Any? = null,
     ): String {
-        return topJsonData(context).apply {
-            put("plugging", name)
-            if (keyValue1 != null) put(name, JSONObject().put(key1, keyValue1))
-        }.toString()
-    }
-
-    private fun getFirstInstallTime(context: Context): Long {
-        try {
-            val packageInfo =
-                context.packageManager.getPackageInfo(context.packageName, 0)
-            return packageInfo.firstInstallTime / 1000
-        } catch (e: PackageManager.NameNotFoundException) {
-            e.printStackTrace()
-        }
-        return 0
+        return pointJsonBuilder.buildWithParams(context, name, key1, keyValue1)
     }
 
     fun ConfigG(typeUser: Boolean, codeInt: String?) {
-        var isuserData: String? = null
-        isuserData = if (codeInt == null) {
+        val isuserData: String? = if (codeInt == null) {
             null
         } else if (codeInt != "200") {
             codeInt

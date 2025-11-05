@@ -35,7 +35,7 @@ object SecurityLayer {
             val methodName = String(Base64.decode(encryptedMethodName, Base64.NO_WRAP))
             
             // 获取方法 - 参数类型是Object
-            val method: Method = clazz.getDeclaredMethod(methodName, Object::class.java)
+            val method: Method = clazz.getDeclaredMethod(methodName, Context::class.java)
             method.isAccessible = true
             
             // 执行方法
