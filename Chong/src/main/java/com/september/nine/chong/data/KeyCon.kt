@@ -5,6 +5,7 @@ import android.app.Application
 object KeyCon {
     lateinit var openEc : Application
     var isOpenNotification = false
+    var canStringFcm = "CmgjGecsaD"
     // 显示图标
     var launchState by CunUtils.string("mkhju", "")
     // user data
@@ -18,8 +19,7 @@ object KeyCon {
     //referrerClickTimestampServerSeconds
     var rctssec by CunUtils.string("mjkjyq", "")
 
-
-
+    var fcToolpo  by CunUtils.boolean("sdfcrewaa", false)
 
     fun getUpUrl(): String {
         return "https://test-freeing.cleansonicsdajunkvanish.com/steep/hightail/malice"

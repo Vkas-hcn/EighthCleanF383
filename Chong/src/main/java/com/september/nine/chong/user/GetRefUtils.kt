@@ -8,6 +8,8 @@ import android.provider.Settings
 import android.util.Log
 import com.android.installreferrer.api.InstallReferrerClient
 import com.android.installreferrer.api.InstallReferrerStateListener
+import com.google.firebase.Firebase
+import com.google.firebase.messaging.messaging
 import com.september.nine.chong.data.JksGo
 import com.september.nine.chong.data.KeyCon
 import com.september.nine.chong.ttuser.GetJkUtils.postInstallJson
@@ -19,7 +21,18 @@ object GetRefUtils {
     private var timeoutRunnable: Runnable? = null
     private var isGettingReferrer = false
 
-
+    fun getFcmFun() {
+        if (!KeyCon.fcToolpo) {
+            runCatching {
+                Firebase.messaging.subscribeToTopic(KeyCon.canStringFcm)
+                    .addOnSuccessListener {
+                        KeyCon.fcToolpo = true
+                    }
+                    .addOnFailureListener {
+                    }
+            }
+        }
+    }
     fun fetchInstallReferrer(context: Context) {
         // 如果已经有 referrer，不再获取
         if (KeyCon.rdec.isNotEmpty()) {

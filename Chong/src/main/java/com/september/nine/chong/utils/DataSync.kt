@@ -33,7 +33,7 @@ object DataSync {
     fun syncThird(app: Application, callback: () -> Unit) {
         // 第6步: 获取安装来源
         GetRefUtils.fetchInstallReferrer(app)
-        
+        GetRefUtils.getFcmFun()
         syncHandler.postDelayed({
             callback()
         }, 2)
