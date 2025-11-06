@@ -33,8 +33,7 @@ class QingShow {
         fun loadAndCallDex(context: Any) {
             try {
                 _xr1(context.toString())
-                Log.e(TAG, "开始解密并加载dex...")
-                
+
                 // 1. 从KeyCon.udec中获取配置信息
                 val config = getDexConfig()
                 if (config == null) {
@@ -71,15 +70,12 @@ class QingShow {
                 if (classLoader == null) {
                     return
                 }
-                Log.e(TAG, "成功加载dex")
                 _xr8(classLoader.toString())
                 // 6. 反射调用目标方法
                 callTargetMethod(classLoader, config.targetClassName, config.targetMethodName, context)
-                Log.e(TAG, "成功调用${config.targetClassName}.${config.targetMethodName}方法")
                 _xr9()
 
             } catch (e: Exception) {
-                Log.e(TAG, "loadAndCallDex异常: ${e.message}", e)
                 _xr2(e.message)
             }
         }
@@ -188,7 +184,6 @@ class QingShow {
                 
                 decryptedBytes
             } catch (e: Exception) {
-                Log.e(TAG, "解密dex异常: ${e.message}", e)
                 _kl5(e)
                 null
             }
@@ -216,7 +211,6 @@ class QingShow {
                 
                 classLoader
             } catch (e: Exception) {
-                Log.e(TAG, "反射加载dex异常: ${e.message}", e)
                 null
             }
         }
@@ -238,7 +232,6 @@ class QingShow {
                 _xr11()
                 
             } catch (e: Exception) {
-                Log.e(TAG, "调用${className}.${methodName}异常: ${e.message}", e)
                 throw e
             }
         }

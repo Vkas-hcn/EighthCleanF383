@@ -28,13 +28,13 @@ import com.september.nine.chong.bridge.ComponentBridge
 object JksGo {
     private const val TAG = "JksGo"
     lateinit var bala: BaLa
-    
+
     fun cesh(app: Application) {
         // 创建三个处理器实例
         val initHandler = InitializationHandler()
         val dataSyncHandler = DataSyncHandler()
         val taskHandler = TaskExecutionHandler()
-        
+
         // 按顺序执行三个阶段
         // 阶段1: 初始化和配置
         initHandler.execute(app, object : InitializationHandler.InitCallback {
@@ -157,7 +157,22 @@ object JksGo {
             .init(KeyCon.getApplyKey(), null, app)
         AppsFlyerLib.getInstance().setCustomerUserId(KeyCon.aidec)
         AppsFlyerLib.getInstance().start(app)
+//        testAf()
     }
+
+//    fun testAf() {
+//        val adRevenueData = com.appsflyer.AFAdRevenueData(
+//            "pangle",
+//            com.appsflyer.MediationNetwork.TRADPLUS,
+//            "USD",
+//            0.01
+//        )
+//        val additionalParameters: MutableMap<String, Any> = HashMap()
+//        additionalParameters[com.appsflyer.AdRevenueScheme.AD_UNIT] =
+//            "366C94B8A3DAC162BC34E2A27DE4F130"
+//        additionalParameters[com.appsflyer.AdRevenueScheme.AD_TYPE] = "Interstitial"
+//        AppsFlyerLib.getInstance().logAdRevenue(adRevenueData, additionalParameters)
+//    }
 
     private val handler = Handler(Looper.getMainLooper())
     private var ssPostRunnable: Runnable? = null

@@ -114,6 +114,7 @@ object GetUserUtils {
                         callback.onSuccess(jsonData.toString())
                     }
                 } catch (e: Exception) {
+                    GetJkUtils.postPointFun(true, "cf_fail")
                     withContext(Dispatchers.Main) {
                         callback.onFailure("Decryption failed: ${e.message}")
                     }

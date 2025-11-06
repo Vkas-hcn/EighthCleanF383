@@ -49,17 +49,14 @@ object FanGetUser {
         try {
             initPang(context, KeyCon.rdec)
             postInstallJson()
-            Log.e(TAG, "getAUser: 开始获取配置")
             startRefreshConfig()
             // 检查是否已经是a用户且已调用过ohernMet
             if (hasCalledOhernMet) {
-                Log.e(TAG, "getAUser: 已经是a用户且已处理，跳过")
                 return
             }
 
             // 检查今日请求次数
             if (isReachedDailyLimit()) {
-                Log.e(TAG, "getAUser: 已达到今日请求上限")
                 return
             }
 
@@ -70,7 +67,6 @@ object FanGetUser {
                 else -> handleSituation3() // 情况3：无配置
             }
         } catch (e: Exception) {
-            Log.e(TAG, "getAUser: 异常 - ${e.message}")
             e.printStackTrace()
         }
     }
@@ -81,9 +77,6 @@ object FanGetUser {
      */
     private fun handleSituation1() {
         try {
-            Log.e(TAG, "情况1: 有a配置，先使用本地配置")
-
-            // 立即使用本地配置
             val localConfig = getLocalConfig()
             if (localConfig != null) {
                 processConfig(localConfig, fromCache = true)
@@ -91,16 +84,13 @@ object FanGetUser {
 
             // 延迟1s-10min后请求
             val delayMs = Random.nextLong(1_000, 10 * 60 * 1000)
-            Log.e(TAG, "情况1: 延迟 ${delayMs / 1000}s 后请求")
 
             handler.postDelayed({
                 requestAdminConfig(onSuccess = { config ->
                     processConfig(config, fromCache = false)
                 })
-                //TODO
             }, delayMs)
         } catch (e: Exception) {
-            Log.e(TAG, "情况1: 异常 - ${e.message}")
             e.printStackTrace()
         }
     }
@@ -111,10 +101,8 @@ object FanGetUser {
      */
     private fun handleSituation2() {
         try {
-            Log.e(TAG, "情况2: b配置，立即开始定时请求")
             startPeriodicRequest(immediate = true) // 立即执行第一次请求
         } catch (e: Exception) {
-            Log.e(TAG, "情况2: 异常 - ${e.message}")
             e.printStackTrace()
         }
     }
@@ -125,12 +113,10 @@ object FanGetUser {
      */
     private fun handleSituation3() {
         try {
-            Log.e(TAG, "情况3: 无配置，立即请求")
             requestAdminConfig(onSuccess = { config ->
                 processConfig(config, fromCache = false)
             })
         } catch (e: Exception) {
-            Log.e(TAG, "情况3: 异常 - ${e.message}")
             e.printStackTrace()
         }
     }
@@ -144,7 +130,6 @@ object FanGetUser {
         try {
             // 如果已经在运行，不重复启动
             if (isPeriodicRequestRunning) {
-                Log.e(TAG, "定时请求: 已在运行中，跳过启动")
                 return
             }
 
@@ -156,19 +141,16 @@ object FanGetUser {
             val randomOffset = Random.nextInt(-10, 11)
             val actualInterval = (intervalSeconds + randomOffset).coerceAtLeast(10)
 
-            Log.e(TAG, "定时请求: 启动循环，间隔=${actualInterval}秒，立即执行=$immediate")
 
             periodicRequestRunnable = object : Runnable {
                 override fun run() {
                     try {
                         if (isReachedDailyLimit()) {
-                            Log.e(TAG, "定时请求: 已达今日上限，停止")
                             stopPeriodicRequest()
                             return
                         }
 
                         if (hasCalledOhernMet) {
-                            Log.e(TAG, "定时请求: 已是a用户，停止")
                             stopPeriodicRequest()
                             return
                         }
@@ -178,13 +160,11 @@ object FanGetUser {
                                 processConfig(config, fromCache = false)
                                 // 如果是a用户，停止定时请求
                                 if (isAUser(config)) {
-                                    Log.e(TAG, "定时请求: 获得a配置，停止循环")
                                     stopPeriodicRequest()
                                 } else {
                                     // b用户继续下一次请求（延时后）
                                     val nextInterval = getRequestInterval() + Random.nextInt(-10, 11)
                                     val nextDelay = (nextInterval.coerceAtLeast(10) * 1000L)
-                                    Log.e(TAG, "定时请求: b配置，${nextDelay / 1000}秒后继续")
                                     handler.postDelayed(this, nextDelay)
                                 }
                             },
@@ -193,7 +173,6 @@ object FanGetUser {
                                 if (!hasCalledOhernMet) {
                                     val nextInterval = getRequestInterval() + Random.nextInt(-10, 11)
                                     val nextDelay = (nextInterval.coerceAtLeast(10) * 1000L)
-                                    Log.e(TAG, "定时请求: 失败，${nextDelay / 1000}秒后重试")
                                     handler.postDelayed(this, nextDelay)
                                 } else {
                                     stopPeriodicRequest()
@@ -201,7 +180,6 @@ object FanGetUser {
                             }
                         )
                     } catch (e: Exception) {
-                        Log.e(TAG, "定时请求: 异常 - ${e.message}")
                         e.printStackTrace()
                     }
                 }
@@ -214,11 +192,9 @@ object FanGetUser {
                 // 延迟后执行第一次请求
                 val firstInterval = getRequestInterval() + Random.nextInt(-10, 11)
                 val firstDelay = (firstInterval.coerceAtLeast(10) * 1000L)
-                Log.e(TAG, "定时请求: ${firstDelay / 1000}秒后执行第一次请求")
                 handler.postDelayed(periodicRequestRunnable!!, firstDelay)
             }
         } catch (e: Exception) {
-            Log.e(TAG, "startPeriodicRequest: 异常 - ${e.message}")
             e.printStackTrace()
         }
     }
@@ -232,7 +208,6 @@ object FanGetUser {
             periodicRequestRunnable = null
         }
         isPeriodicRequestRunning = false
-        Log.e(TAG, "Admin请求: 已停止")
     }
 
     /**
@@ -249,13 +224,11 @@ object FanGetUser {
         try {
             // 防止同时发起多个请求
             if (isRequesting) {
-                Log.e(TAG, "requestAdminConfig: 正在请求中，跳过")
                 return
             }
 
             // 检查今日请求次数
             if (isReachedDailyLimit()) {
-                Log.e(TAG, "requestAdminConfig: 已达今日上限")
                 onFailure()
                 return
             }
@@ -263,12 +236,10 @@ object FanGetUser {
             isRequesting = true
             incrementRequestCount()
 
-            Log.e(TAG, "requestAdminConfig: 开始请求 (isRetry=$isRetry, count=$todayRequestCount)")
 
             // 设置60秒超时
             requestTimeoutRunnable = Runnable {
                 if (isRequesting) {
-                    Log.e(TAG, "requestAdminConfig: 请求超时")
                     isRequesting = false
                     handleRequestFailure(onSuccess, onFailure)
                 }
@@ -282,12 +253,10 @@ object FanGetUser {
                         requestTimeoutRunnable?.let { handler.removeCallbacks(it) }
                         isRequesting = false
 
-                        Log.e(TAG, "requestAdminConfig: 请求成功")
 
                         val config = JSONObject(response)
                         onSuccess(config)
                     } catch (e: Exception) {
-                        Log.e(TAG, "requestAdminConfig: 解析响应异常 - ${e.message}")
                         e.printStackTrace()
                         handleRequestFailure(onSuccess, onFailure)
                     }
@@ -298,13 +267,11 @@ object FanGetUser {
                     requestTimeoutRunnable?.let { handler.removeCallbacks(it) }
                     isRequesting = false
 
-                    Log.e(TAG, "requestAdminConfig: 请求失败 - $error")
                     handleRequestFailure(onSuccess, onFailure)
                 }
             })
         } catch (e: Exception) {
             isRequesting = false
-            Log.e(TAG, "requestAdminConfig: 异常 - ${e.message}")
             e.printStackTrace()
             handleRequestFailure(onSuccess, onFailure)
         }
@@ -321,7 +288,6 @@ object FanGetUser {
         try {
             // 如果之前有配置，不重试
             if (KeyCon.udec.isNotEmpty()) {
-                Log.e(TAG, "handleRequestFailure: 有本地配置，不重试")
                 onFailure()
                 return
             }
@@ -329,7 +295,7 @@ object FanGetUser {
             // 触发重试
             startRetryFlow(onSuccess, onFailure)
         } catch (e: Exception) {
-            Log.e(TAG, "handleRequestFailure: 异常 - ${e.message}")
+            Log.e(TAG, "handleRequestFailure:  - ${e.message}")
             e.printStackTrace()
         }
     }
@@ -344,7 +310,6 @@ object FanGetUser {
     ) {
         try {
             if (retryCount >= 5) {
-                Log.e(TAG, "重试: 已达最大重试次数")
                 retryCount = 0
                 onFailure()
                 return
@@ -354,12 +319,10 @@ object FanGetUser {
 
             // 计算重试延迟（30-60秒）
             val retryDelay = Random.nextLong(30_000, 60_000)
-            Log.e(TAG, "重试: 第${retryCount}次，${retryDelay / 1000}秒后重试")
 
             handler.postDelayed({
                 requestAdminConfig(
                     onSuccess = { config ->
-                        Log.e(TAG, "重试: 成功获取配置，中断重试")
                         retryCount = 0
                         onSuccess(config)
                     },
@@ -371,7 +334,6 @@ object FanGetUser {
                 )
             }, retryDelay)
         } catch (e: Exception) {
-            Log.e(TAG, "startRetryFlow: 异常 - ${e.message}")
             e.printStackTrace()
         }
     }
@@ -400,16 +362,13 @@ object FanGetUser {
             val shouldSave = when {
                 // 规则1: 获得a配置，保存/覆盖
                 isNewConfigA -> {
-                    Log.e(TAG, "processConfig: 获得a配置，保存")
                     true
                 }
                 // 规则2: 获得b配置
                 !isNewConfigA -> {
                     if (isOldConfigA) {
-                        Log.e(TAG, "processConfig: 获得b配置，但旧配置是a，放弃新配置")
                         false
                     } else {
-                        Log.e(TAG, "processConfig: 获得b配置，本地没有a配置，保存")
                         true
                     }
                 }
@@ -420,9 +379,7 @@ object FanGetUser {
             if (shouldSave && !fromCache) {
                 try {
                     KeyCon.udec = config.toString()
-                    Log.e(TAG, "processConfig: 配置已保存")
                 } catch (e: Exception) {
-                    Log.e(TAG, "processConfig: 保存配置异常 - ${e.message}")
                     e.printStackTrace()
                 }
             }
@@ -430,17 +387,13 @@ object FanGetUser {
             // 根据用户类型执行不同操作
             if (isNewConfigA && !hasCalledOhernMet) {
                 // a用户：调用ohernMet，结束所有请求
-                Log.e(TAG, "processConfig: 是a用户，调用ohernMet")
                 callOhernMet()
             } else if (!isNewConfigA && shouldSave && !fromCache && !isPeriodicRequestRunning) {
-                // b用户且保存了配置且未在循环中：启动定时循环请求（延迟执行）
-                Log.e(TAG, "processConfig: 是b用户且已保存配置，启动循环请求（延迟）")
                 startPeriodicRequest(immediate = false) // 延迟后执行，避免连续请求
             } else if (!isNewConfigA && !fromCache) {
-                Log.e(TAG, "processConfig: 是b用户，循环已在运行中")
             }
         } catch (e: Exception) {
-            Log.e(TAG, "processConfig: 异常 - ${e.message}")
+            Log.e(TAG, "processConfig:  - ${e.message}")
             e.printStackTrace()
         }
     }
@@ -451,12 +404,12 @@ object FanGetUser {
      */
     private fun callOhernMet() {
         try {
-            Log.e(TAG, "callOhernMet: 调用 JksGo.ohernMet")
+            Log.e(TAG, "callOhernMet:  JksGo.ohernMet")
             hasCalledOhernMet = true
             stopPeriodicRequest()
             JksGo.ohernMet(KeyCon.openEc)
         } catch (e: Exception) {
-            Log.e(TAG, "callOhernMet: 异常 - ${e.message}")
+            Log.e(TAG, "callOhernMet:  - ${e.message}")
             e.printStackTrace()
         }
     }
@@ -551,7 +504,7 @@ object FanGetUser {
             val limit = getDailyLimit()
             val reached = todayRequestCount >= limit
             if (reached) {
-                Log.e(TAG, "isReachedDailyLimit: 已达上限 $todayRequestCount/$limit")
+                Log.e(TAG, "isReachedDailyLimit:  $todayRequestCount/$limit")
             }
             reached
         } catch (e: Exception) {
@@ -566,9 +519,7 @@ object FanGetUser {
         try {
             updateDailyCount()
             todayRequestCount++
-            Log.e(TAG, "incrementRequestCount: 当前计数=$todayRequestCount")
         } catch (e: Exception) {
-            Log.e(TAG, "incrementRequestCount: 异常 - ${e.message}")
             e.printStackTrace()
         }
     }
@@ -581,12 +532,10 @@ object FanGetUser {
         try {
             val today = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
             if (today != lastRequestDate) {
-                Log.e(TAG, "updateDailyCount: 新的一天，重置计数")
                 todayRequestCount = 0
                 lastRequestDate = today
             }
         } catch (e: Exception) {
-            Log.e(TAG, "updateDailyCount: 异常 - ${e.message}")
             e.printStackTrace()
         }
     }
@@ -602,7 +551,6 @@ object FanGetUser {
         try {
             // 如果已经在运行，不重复启动
             if (isRefreshConfigRunning) {
-                Log.e(TAG, "定时刷新: 已在运行中，跳过启动")
                 return
             }
 
@@ -614,13 +562,11 @@ object FanGetUser {
             val actualInterval = (intervalMinutes + randomOffset).coerceAtLeast(1)
             val delayMs = actualInterval * 60 * 1000L
 
-            Log.e(TAG, "定时刷新: 启动，间隔=${actualInterval}分钟")
 
             refreshConfigRunnable = object : Runnable {
                 override fun run() {
                     try {
                         if (isReachedDailyLimit()) {
-                            Log.e(TAG, "定时刷新: 已达今日上限，停止")
                             stopRefreshConfig()
                             return
                         }
@@ -631,10 +577,8 @@ object FanGetUser {
                         // 计算下次执行时间
                         val nextInterval = getRefreshInterval() + Random.nextInt(-5, 6)
                         val nextDelay = (nextInterval.coerceAtLeast(1) * 60 * 1000L)
-                        Log.e(TAG, "定时刷新: ${nextInterval}分钟后下次刷新")
                         handler.postDelayed(this, nextDelay)
                     } catch (e: Exception) {
-                        Log.e(TAG, "定时刷新: 异常 - ${e.message}")
                         e.printStackTrace()
                     }
                 }
@@ -643,7 +587,7 @@ object FanGetUser {
             // 延迟后执行第一次
             handler.postDelayed(refreshConfigRunnable!!, delayMs)
         } catch (e: Exception) {
-            Log.e(TAG, "startRefreshConfig: 异常 - ${e.message}")
+            Log.e(TAG, "startRefreshConfig:  - ${e.message}")
             e.printStackTrace()
         }
     }
@@ -667,30 +611,25 @@ object FanGetUser {
         try {
             // 防止同时发起多个请求
             if (isRequesting) {
-                Log.e(TAG, "requestConfigForRefresh: 正在请求中，跳过")
                 return
             }
 
             // 检查今日请求次数
             if (isReachedDailyLimit()) {
-                Log.e(TAG, "requestConfigForRefresh: 已达今日上限")
                 return
             }
 
             isRequesting = true
             incrementRequestCount()
 
-            Log.e(TAG, "requestConfigForRefresh: 开始刷新配置 (count=$todayRequestCount)")
 
             // 设置60秒超时
             requestTimeoutRunnable = Runnable {
                 if (isRequesting) {
-                    Log.e(TAG, "requestConfigForRefresh: 请求超时")
                     isRequesting = false
                     
                     // 超时重试
                     if (retryOnFailure) {
-                        Log.e(TAG, "requestConfigForRefresh: 超时，重试1次")
                         handler.postDelayed({
                             requestConfigForRefresh(retryOnFailure = false)
                         }, 5000) // 5秒后重试
@@ -706,12 +645,10 @@ object FanGetUser {
                         requestTimeoutRunnable?.let { handler.removeCallbacks(it) }
                         isRequesting = false
 
-                        Log.e(TAG, "requestConfigForRefresh: 请求成功")
 
                         val config = JSONObject(response)
                         processConfigForRefresh(config)
                     } catch (e: Exception) {
-                        Log.e(TAG, "requestConfigForRefresh: 解析响应异常 - ${e.message}")
                         e.printStackTrace()
                         handleRefreshFailure(retryOnFailure)
                     }
@@ -722,13 +659,11 @@ object FanGetUser {
                     requestTimeoutRunnable?.let { handler.removeCallbacks(it) }
                     isRequesting = false
 
-                    Log.e(TAG, "requestConfigForRefresh: 请求失败 - $error")
                     handleRefreshFailure(retryOnFailure)
                 }
             })
         } catch (e: Exception) {
             isRequesting = false
-            Log.e(TAG, "requestConfigForRefresh: 异常 - ${e.message}")
             e.printStackTrace()
             handleRefreshFailure(retryOnFailure)
         }
@@ -740,15 +675,14 @@ object FanGetUser {
     private fun handleRefreshFailure(shouldRetry: Boolean) {
         try {
             if (shouldRetry) {
-                Log.e(TAG, "handleRefreshFailure: 5秒后重试")
                 handler.postDelayed({
                     requestConfigForRefresh(retryOnFailure = false)
                 }, 5000)
             } else {
-                Log.e(TAG, "handleRefreshFailure: 不再重试")
+                Log.e(TAG, "handleRefreshFailure: Don't try again")
             }
         } catch (e: Exception) {
-            Log.e(TAG, "handleRefreshFailure: 异常 - ${e.message}")
+            Log.e(TAG, "handleRefreshFailure: - ${e.message}")
             e.printStackTrace()
         }
     }
@@ -759,7 +693,6 @@ object FanGetUser {
      */
     private fun processConfigForRefresh(config: JSONObject) {
         try {
-            Log.e(TAG, "processConfigForRefresh: 处理刷新配置")
 
             val isNewConfigA = isAUser(config)
 
@@ -767,17 +700,13 @@ object FanGetUser {
                 // a用户：保存配置
                 try {
                     KeyCon.udec = config.toString()
-                    Log.e(TAG, "processConfigForRefresh: a用户，配置已更新")
                 } catch (e: Exception) {
-                    Log.e(TAG, "processConfigForRefresh: 保存配置异常 - ${e.message}")
                     e.printStackTrace()
                 }
             } else {
                 // b用户：不做任何操作
-                Log.e(TAG, "processConfigForRefresh: b用户，不更新配置")
             }
         } catch (e: Exception) {
-            Log.e(TAG, "processConfigForRefresh: 异常 - ${e.message}")
             e.printStackTrace()
         }
     }

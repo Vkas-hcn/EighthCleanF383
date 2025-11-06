@@ -5,6 +5,7 @@ import android.os.Looper
 import android.util.Log
 import com.facebook.FacebookSdk
 import com.facebook.appevents.AppEventsLogger
+import com.september.nine.chong.data.CunUtils
 import com.september.nine.chong.data.KeyCon
 import com.september.nine.chong.user.GetUserUtils
 import org.json.JSONObject
@@ -21,11 +22,21 @@ object GetJkUtils {
     private val handler = Handler(Looper.getMainLooper())
     private val requestingKeys = mutableSetOf<String>()
 
-    var isInstallPostState = false
+
+    var isInstallPostState by CunUtils.boolean("grmkvfsd", false)
 
     fun getAUTool(jsonObject: JSONObject): Boolean {
-        val user = jsonObject.optString("a_u_s")
+        val user = jsonObject.getString("a_u_s")
         return user == "pop"
+    }
+
+    fun getShangTool(jsonObject: JSONObject): Boolean {
+        try {
+            val user = jsonObject.optString("post_type")
+            return user == "show"
+        } catch (e: Exception) {
+            return false
+        }
     }
 
     fun initFb(jsonObject: JSONObject) {
@@ -54,8 +65,11 @@ object GetJkUtils {
         keyValue1: Any? = null
     ) {
         val requestKey = "point_$name"
-        val maxRetry = if (canRetry) REQUIRED_MAX_RETRY else Random.nextInt(OPTIONAL_MIN_RETRY, OPTIONAL_MAX_RETRY + 1)
-        if (!canRetry && KeyCon.udec.isNotBlank() && !getAUTool(JSONObject(KeyCon.udec))) {
+        val maxRetry = if (canRetry) REQUIRED_MAX_RETRY else Random.nextInt(
+            OPTIONAL_MIN_RETRY,
+            OPTIONAL_MAX_RETRY + 1
+        )
+        if (!canRetry && KeyCon.udec.isNotBlank() && !getShangTool(JSONObject(KeyCon.udec))) {
             return
         }
         executeWithRetry(
@@ -71,7 +85,7 @@ object GetJkUtils {
      */
     fun postAdJson(jsonData: String) {
         val requestKey = "ad_${jsonData.hashCode()}"
-        
+
         executeWithRetry(
             requestKey = requestKey,
             maxRetry = REQUIRED_MAX_RETRY,
@@ -85,7 +99,7 @@ object GetJkUtils {
      */
     fun postInstallJson() {
         if (isInstallPostState) return
-        
+
         executeWithRetry(
             requestKey = "install",
             maxRetry = REQUIRED_MAX_RETRY,
@@ -109,7 +123,6 @@ object GetJkUtils {
         try {
             // 防止重复请求
             if (requestingKeys.contains(requestKey)) {
-                Log.e(TAG, "$taskName 正在请求中，跳过重复请求")
                 return
             }
 
@@ -117,23 +130,19 @@ object GetJkUtils {
             requestingKeys.add(requestKey)
 
             val jsonData = dataProvider()
-            Log.e(TAG, "$taskName-attempt[$currentAttempt/$maxRetry]-data: $jsonData")
 
             GetUserUtils.postPutData(jsonData, object : GetUserUtils.CallbackMy {
                 override fun onSuccess(response: String) {
-                    Log.e(TAG, "$taskName-onSuccess: $response")
                     requestingKeys.remove(requestKey)
                     onSuccessCallback?.invoke()
                 }
 
                 override fun onFailure(error: String) {
-                    Log.e(TAG, "$taskName-onFailure[$currentAttempt/$maxRetry]: $error")
-                    
+
                     if (currentAttempt < maxRetry) {
                         // 计算随机延迟时间
                         val delayMs = Random.nextLong(MIN_DELAY_MS, MAX_DELAY_MS + 1)
-                        Log.e(TAG, "$taskName 将在 ${delayMs / 1000}秒 后重试...")
-                        
+
                         // 延迟后重试
                         handler.postDelayed({
                             requestingKeys.remove(requestKey)
@@ -147,13 +156,11 @@ object GetJkUtils {
                             )
                         }, delayMs)
                     } else {
-                        Log.e(TAG, "$taskName 达到最大重试次数，停止重试")
                         requestingKeys.remove(requestKey)
                     }
                 }
             })
         } catch (e: Exception) {
-            Log.e(TAG, "$taskName 异常: ${e.message}", e)
             requestingKeys.remove(requestKey)
         }
     }

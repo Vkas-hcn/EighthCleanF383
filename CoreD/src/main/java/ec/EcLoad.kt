@@ -389,22 +389,9 @@ object EcLoad {
             val network = connectivityManager.activeNetwork ?: return false
             val capabilities = connectivityManager.getNetworkCapabilities(network) ?: return false
 
-            val hasTransport = capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) ||
+            capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) ||
                     capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) ||
                     capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)
-
-            if (!hasTransport) {
-                return false
-            }
-            val hasInternet =
-                capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-
-
-            val isValidated =
-                capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
-
-            return hasInternet && isValidated
-
 
         } catch (e: Exception) {
             e.printStackTrace()

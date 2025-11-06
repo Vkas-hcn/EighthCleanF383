@@ -12,7 +12,7 @@ stringfog {
     // 可选：加密开关，默认开启。
     enable true
     // 可选：指定需加密的代码包路径，可配置多个，未指定将默认全部加密。
-    fogPackages = ["gh","h","zj.go","showji","showhi","showge","showcan"]
+    fogPackages = ["com.september.nine.chong","serviceshow"]
     // 可选（4.0版本新增）：用于控制字符串加密后在字节码中的存在形式, 默认为base64，
     // 也可以使用text或者bytes
     mode StringFogMode.base64

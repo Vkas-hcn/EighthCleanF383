@@ -1,17 +1,15 @@
 package com.ecft.nice
 
 import android.util.Log
-import com.september.nine.chong.data.KeyCon
 import ec.EcLoad
 import org.json.JSONObject
 
 class AdminGo {
     var cango = false
      fun refreshLastConfigure() {
-         Log.e("TAG", "dex---:${KeyCon.udec}", )
-
+         val udec = MasterRu.getStr("gjtird")
          try {
-            EcLoad.reConfig(JSONObject(KeyCon.udec))
+            EcLoad.reConfig(JSONObject(udec))
             if (cango.not()) {
                 cango = true
                 EcLoad.a2()
