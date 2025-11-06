@@ -16,10 +16,6 @@ public class D {
 
     private static final String TAG = "D";
 
-    /**
-     * Enable component alias
-     * 启用Activity别名，通过外部反射调用
-     */
     public static void d2(Context context) {
         GongShow.INSTANCE.d2(context);
     }

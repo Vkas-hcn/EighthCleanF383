@@ -15,16 +15,16 @@ import javax.crypto.spec.SecretKeySpec
  * See [testing documentation](http://d.android.com/tools/testing).
  */
 class ExampleUnitTest {
-    private val soName = "libcnvb.so"
-    private val progetName = "T691"
-    private val name64 = "ecuser.pdf"
-    private val name32 = "ecpass.txt"
+//    private val soName = "libcnvb.so"
+//    private val progetName = "T691"
+//    private val name64 = "ecuser.pdf"
+//    private val name32 = "ecpass.txt"
 
     // h5
-//    private val soName = "libdjfhg.so"
-//    private val progetName = "T691"
-//    private val name64 = "ecnuse.pdf"
-//    private val name32 = "ecnpa.txt"
+    private val soName = "libdjfhg.so"
+    private val progetName = "T691"
+    private val name64 = "ecnuse.pdf"
+    private val name32 = "ecnpa.txt"
 
     @Test
     fun addition_isCorrect() {

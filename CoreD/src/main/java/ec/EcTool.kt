@@ -1,6 +1,7 @@
 package ec
 
 import android.app.Activity
+import android.util.Log
 import androidx.activity.addCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
@@ -36,6 +37,7 @@ class EcTool {
                 MasterRu.pE("ad_done")
                 delay(Random.nextLong(EcLoad.gDTime()))
                 if (EcLoad.isLoadH) {
+                    Log.e("TAG", "showAd: webview-activity", )
                     Kac.nneCp(ac)
                 }
                 var isS = mPAH.shAd(ac)

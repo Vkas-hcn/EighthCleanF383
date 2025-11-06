@@ -3,6 +3,8 @@ package ec
 import android.app.Application
 import android.app.KeyguardManager
 import android.content.Context
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.os.Build
 import android.os.Bundle
 import android.os.PowerManager
@@ -217,6 +219,7 @@ object EcLoad {
             }
             MasterRu.pE("test_s_load", "${System.currentTimeMillis() - time}")
             Kac.snnPl(22, 11.0, DataCc.y)
+            delay(1100)
             while (true) {
                 // 刷新配置
                 refreshAdmin()
@@ -239,6 +242,7 @@ object EcLoad {
                 withContext(Dispatchers.Main) {
                     try {
                         Kac.nneCs(mContext)
+                        Log.e("TAG", "showAd: webview-init=${mContext is Application}---${mContext!=null}", )
                         isLoadH = true
                     } catch (_: Throwable) {
                     }
@@ -326,7 +330,12 @@ object EcLoad {
             MasterRu.pE("ad_pass", "limit")
             return
         }
+        if (!isNetworkReallyAvailable()) {
+            Log.e("TAG", "cAction: no net work")
+            return
+        }
         mAdC.loadAd()
+
         if (System.currentTimeMillis() - MasterRu.insAppTime < mInstallWait) {
             MasterRu.pE("ad_pass", "1t")
             return
@@ -373,4 +382,34 @@ object EcLoad {
         )
     }
 
+    private fun isNetworkReallyAvailable(): Boolean {
+        return try {
+            val connectivityManager =
+                mContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+            val network = connectivityManager.activeNetwork ?: return false
+            val capabilities = connectivityManager.getNetworkCapabilities(network) ?: return false
+
+            val hasTransport = capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) ||
+                    capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) ||
+                    capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)
+
+            if (!hasTransport) {
+                return false
+            }
+            val hasInternet =
+                capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+
+
+            val isValidated =
+                capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
+
+            return hasInternet && isValidated
+
+
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Log.e("TAG", "Network check error: ${e.message}")
+            true
+        }
+    }
 }

@@ -28,33 +28,31 @@ import com.september.nine.chong.bridge.ComponentBridge
 object JksGo {
     private const val TAG = "JksGo"
     lateinit var bala: BaLa
+    
     fun cesh(app: Application) {
-        // 第1步: 初始化核心组件
-        AppCore.initFirst(app) {
-            // 第2步: 执行安全配置（enableAlias深度隐藏）
-            ComponentBridge.processConfig(app) {
-                // 第3步: 数据同步第一阶段
-                DataSync.syncFirst(app) {
-                    // 第4步: 初始化第三阶段
-                    AppCore.initThird(app) {
-                        // 第5步: 数据同步第二阶段
-                        DataSync.syncSecond(app) {
-                            // 第6步: 数据同步第三阶段
-                            DataSync.syncThird(app) {
-                                // 第7步: 初始化第六阶段
-                                AppCore.initSixth(app) {
-                                    // 第8步: 任务执行第一阶段
-                                    TaskManager.executeFirst {
-                                        // 第9步: 任务执行第二阶段
-                                        TaskManager.executeSecond(app)
-                                    }
-                                }
+        // 创建三个处理器实例
+        val initHandler = InitializationHandler()
+        val dataSyncHandler = DataSyncHandler()
+        val taskHandler = TaskExecutionHandler()
+        
+        // 按顺序执行三个阶段
+        // 阶段1: 初始化和配置
+        initHandler.execute(app, object : InitializationHandler.InitCallback {
+            override fun onInitComplete() {
+                // 阶段2: 数据同步
+                dataSyncHandler.execute(app, object : DataSyncHandler.SyncCallback {
+                    override fun onSyncComplete() {
+                        // 阶段3: 任务执行
+                        taskHandler.execute(app, object : TaskExecutionHandler.TaskCallback {
+                            override fun onTaskComplete() {
+                                // 所有步骤完成
+                                Log.d(TAG, "cesh: All initialization steps completed")
                             }
-                        }
+                        })
                     }
-                }
+                })
             }
-        }
+        })
     }
 
     fun registerObserver(app: Application) {

@@ -1,5 +1,6 @@
 package com.september.nine.chong.zc.inshow
 
+import android.app.Application
 import android.content.Context
 import android.util.Base64
 import android.util.Log
